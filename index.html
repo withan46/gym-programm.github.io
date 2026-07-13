@@ -413,12 +413,12 @@ const E = {
 /* ---------- gif filenames (drop matching files into ./gifs/) ---------- */
 const GIFS = {
   bench:"Barbell-Bench-Press", bentRow:"Barbell-Bent-Over-Row", ohp:"Dumbbell-Shoulder-Press",
-  pulldownA:"Lat-Pulldown", curl:"Dumbbell-Bicep-Curl", pushdown:"Triceps-Pushdown",
-  squat:"Barbell-Squat", rdl:"Romanian-Deadlift", legpress:"Leg-Press", legcurl:"Lying-Leg-Curl",
-  calf:"Standing-Calf-Raise", abs:"Crunch", incline:"Incline-Dumbbell-Press", pulldownB:"Pull-up",
-  lateral:"Dumbbell-Lateral-Raise", csRow:"Chest-Supported-Row", hammer:"Dumbbell-Hammer-Curl",
-  ohTri:"Overhead-Triceps-Extension", deadlift:"Barbell-Deadlift", bulgarian:"Bulgarian-Split-Squat",
-  hip:"Barbell-Hip-Thrust", legext:"Leg-Extension"
+  pulldownA:"Lat-Pulldown", curl:"Dumbbell-Curl", pushdown:"Rope-Pushdown",
+  squat:"BARBELL-SQUAT", rdl:"Barbell-Romanian-Deadlift", legpress:"Leg-Press", legcurl:"Leg-Curl",
+  calf:"Bench-Press-Machine-Standing-Calf-Raise", abs:"Crunch", incline:"Incline-Dumbbell-Press",
+  pulldownB:"Lat-Pulldown", lateral:"Dumbbell-Lateral-Raise", csRow:"45-Degree-Incline-Row",
+  hammer:"Hammer-Curl", ohTri:"Dumbbell-Triceps-Extension", deadlift:"Barbell-Deadlift",
+  bulgarian:"Dumbbell-Bulgarian-Split-Squat", hip:"Barbell-Hip-Thrust", legext:"LEG-EXTENSION"
 };
 Object.keys(GIFS).forEach(k=>{ if(E[k]) E[k].gif = "gifs/"+GIFS[k]+".gif"; });
 
