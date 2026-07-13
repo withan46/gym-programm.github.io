@@ -249,6 +249,50 @@
   .watch-sub{text-align:center;color:var(--muted2);font-size:11px;margin:8px 0 2px;letter-spacing:.02em;}
 
   .m-body{padding:16px 22px 30px;}
+
+  /* weight tracker */
+  .wtrack{
+    background:linear-gradient(180deg, color-mix(in srgb,var(--accent) 10%,var(--surface)), var(--surface));
+    border:1px solid color-mix(in srgb,var(--accent) 34%,var(--line));
+    border-radius:14px;padding:14px 16px 15px;margin-bottom:20px;
+  }
+  .wt-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .wt-lbl{font-family:'Oswald',sans-serif;font-weight:500;letter-spacing:.08em;font-size:14px;text-transform:uppercase;}
+  .wt-date{font-size:11px;color:var(--muted2);font-weight:600;}
+  .wt-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .wt-step{
+    flex:none;width:42px;height:46px;border-radius:11px;cursor:pointer;
+    background:var(--bg);border:1px solid var(--line);color:var(--text);
+    font-family:'Oswald',sans-serif;font-size:24px;line-height:1;transition:.15s;
+  }
+  .wt-step:hover{border-color:var(--accent);color:var(--accent);}
+  .wt-step:active{transform:scale(.94);}
+  .wt-field{position:relative;flex:1;min-width:96px;}
+  .wt-field input{
+    width:100%;height:46px;background:var(--bg);border:1px solid var(--line);border-radius:11px;
+    color:var(--text);font-family:'Oswald',sans-serif;font-weight:600;font-size:24px;letter-spacing:.02em;
+    text-align:center;padding:0 34px 0 12px;transition:.15s;
+  }
+  .wt-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent);}
+  .wt-unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700;font-size:14px;pointer-events:none;}
+  .wt-reps{display:flex;align-items:center;gap:6px;flex:none;}
+  .wt-x{color:var(--muted2);font-family:'Oswald',sans-serif;font-size:18px;}
+  .wt-reps input{
+    width:56px;height:46px;background:var(--bg);border:1px solid var(--line);border-radius:11px;
+    color:var(--text);font-family:'Oswald',sans-serif;font-weight:600;font-size:20px;text-align:center;transition:.15s;
+  }
+  .wt-reps input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent);}
+  .wt-rlbl{color:var(--muted2);font-size:11px;font-weight:600;}
+  .wt-hint{margin-top:11px;font-size:12.5px;color:var(--muted);min-height:16px;line-height:1.4;}
+  .wt-hint b{color:var(--accent);font-weight:700;}
+
+  /* saved-weight badge on the list card */
+  .wbadge{
+    display:inline-flex;align-items:center;gap:5px;margin-top:7px;
+    font-family:'Oswald',sans-serif;font-weight:500;font-size:12.5px;letter-spacing:.03em;
+    color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);
+    border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:7px;padding:2px 8px;
+  }
   .row-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
   .meta-box{flex:1;min-width:130px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .meta-box .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-weight:700;margin-bottom:6px;}
@@ -324,6 +368,26 @@
       <div class="watch-sub">Ανοίγει αναζήτηση στο YouTube σε νέα καρτέλα</div>
     </div>
     <div class="m-body">
+      <div class="wtrack">
+        <div class="wt-head">
+          <span class="wt-lbl">💪 Το βάρος μου</span>
+          <span class="wt-date" id="wt-date"></span>
+        </div>
+        <div class="wt-controls">
+          <button class="wt-step" id="wt-minus" aria-label="Μείωση">−</button>
+          <div class="wt-field">
+            <input id="wt-weight" type="number" inputmode="decimal" step="0.5" min="0" placeholder="0">
+            <span class="wt-unit">kg</span>
+          </div>
+          <button class="wt-step" id="wt-plus" aria-label="Αύξηση">+</button>
+          <div class="wt-reps">
+            <span class="wt-x">×</span>
+            <input id="wt-reps" type="number" inputmode="numeric" step="1" min="0" placeholder="—">
+            <span class="wt-rlbl">επαν.</span>
+          </div>
+        </div>
+        <div class="wt-hint" id="wt-hint"></div>
+      </div>
       <div class="row-meta">
         <div class="meta-box">
           <div class="lbl">Σετ × Επαναλήψεις</div>
@@ -421,6 +485,18 @@ const GIFS = {
   bulgarian:"Dumbbell-Bulgarian-Split-Squat", hip:"Barbell-Hip-Thrust", legext:"LEG-EXTENSION"
 };
 Object.keys(GIFS).forEach(k=>{ if(E[k]) E[k].gif = "gifs/"+GIFS[k]+".gif"; });
+
+/* ---------- weight tracking (saved in your browser) ---------- */
+const WKEY = "gymweights:v1";
+function loadW(){ try{ return JSON.parse(localStorage.getItem(WKEY)) || {}; }catch(e){ return {}; } }
+function saveW(){ try{ localStorage.setItem(WKEY, JSON.stringify(WEIGHTS)); }catch(e){} }
+let WEIGHTS = loadW();
+function fmtDate(ts){ try{ return new Date(ts).toLocaleDateString("el-GR",{day:"2-digit",month:"2-digit",year:"2-digit"}); }catch(e){ return ""; } }
+function wBadge(e){
+  const r = WEIGHTS[e.name];
+  if(!r || r.w==null || r.w==="") return "";
+  return `<span class="wbadge">🏋 ${r.w} kg${(r.reps!=null&&r.reps!=="")?` × ${r.reps}`:""}</span>`;
+}
 
 /* ---------- program: 4-day Upper/Lower ---------- */
 const FOUR = [
@@ -567,6 +643,7 @@ function renderDay(){
       <div class="mid">
         <div class="name">${e.name}</div>
         <div class="tags">${tags}</div>
+        ${wBadge(e)}
       </div>
       <div class="sr"><small>ΣΕΤ × ΕΠΑΝ.</small>${e.sr}</div>
       <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`;
@@ -581,9 +658,21 @@ function renderAll(){renderRail();renderDay();}
 /* ---------- modal ---------- */
 const backdrop = document.getElementById("backdrop");
 let lastFocused = null;
+let currentEx = null;
+
+function updateHint(e){
+  const el = document.getElementById("wt-hint");
+  const rec = WEIGHTS[e.name];
+  if(rec && rec.w!=null && rec.w!==""){
+    el.innerHTML = `Αποθηκευμένο: <b>${rec.w} kg${(rec.reps!=null&&rec.reps!=="")?" × "+rec.reps:""}</b> — την επόμενη φορά προσπάθησε για λίγο παραπάνω.`;
+  } else {
+    el.innerHTML = "Γράψε το βάρος & τις επαναλήψεις που έκανες. Αποθηκεύεται αυτόματα.";
+  }
+}
 
 function openModal(e){
   lastFocused = document.activeElement;
+  currentEx = e;
   const d = prog()[dayIndex];
   document.getElementById("m-eb").textContent = d.dow+" · "+d.ttl;
   document.getElementById("m-title").textContent = e.name;
@@ -591,6 +680,13 @@ function openModal(e){
   document.getElementById("m-muscles").innerHTML = e.muscles.map(m=>`<span class="mtag">${m}</span>`).join("");
   document.getElementById("m-cues").innerHTML = e.cues.map((c,i)=>`<li><span class="k">${i+1}</span><span>${c}</span></li>`).join("");
   document.getElementById("watch").href = "https://www.youtube.com/results?search_query="+encodeURIComponent(e.yt);
+
+  // weight fields
+  const rec = WEIGHTS[e.name] || {};
+  document.getElementById("wt-weight").value = (rec.w!=null) ? rec.w : "";
+  document.getElementById("wt-reps").value = (rec.reps!=null) ? rec.reps : "";
+  document.getElementById("wt-date").textContent = rec.ts ? "ενημ. "+fmtDate(rec.ts) : "";
+  updateHint(e);
 
   // gif (falls back to placeholder if the file isn't in ./gifs/ yet)
   const gw = document.getElementById("gifwrap");
@@ -620,6 +716,34 @@ function closeModal(){
 document.getElementById("m-close").onclick = closeModal;
 backdrop.onclick = (ev)=>{if(ev.target===backdrop) closeModal();};
 document.addEventListener("keydown", e=>{if(e.key==="Escape"&&backdrop.classList.contains("show")) closeModal();});
+
+/* weight save + steppers */
+function commitW(){
+  if(!currentEx) return;
+  const w = document.getElementById("wt-weight").value.trim();
+  const reps = document.getElementById("wt-reps").value.trim();
+  if(w==="" && reps===""){
+    delete WEIGHTS[currentEx.name];
+  } else {
+    WEIGHTS[currentEx.name] = { w: w==="" ? null : parseFloat(w), reps: reps==="" ? null : parseInt(reps,10), ts: Date.now() };
+  }
+  saveW();
+  const rec = WEIGHTS[currentEx.name];
+  document.getElementById("wt-date").textContent = (rec && rec.ts) ? "ενημ. "+fmtDate(rec.ts) : "";
+  updateHint(currentEx);
+  renderDay(); // refresh the badges on the list behind the modal
+}
+function step(delta){
+  const el = document.getElementById("wt-weight");
+  let v = parseFloat(el.value); if(isNaN(v)) v = 0;
+  v = Math.max(0, Math.round((v+delta)*100)/100);
+  el.value = v;
+  commitW();
+}
+document.getElementById("wt-plus").onclick = ()=>step(2.5);
+document.getElementById("wt-minus").onclick = ()=>step(-2.5);
+document.getElementById("wt-weight").addEventListener("input", commitW);
+document.getElementById("wt-reps").addEventListener("input", commitW);
 
 /* ---------- mode toggle ---------- */
 document.getElementById("toggle").addEventListener("click", ev=>{
