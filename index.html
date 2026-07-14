@@ -266,6 +266,105 @@
     padding:22px 16px;border:1px dashed var(--line);border-radius:12px;background:var(--bg2);margin-bottom:4px;
   }
 
+  /* ---------- view switcher ---------- */
+  .viewswitch{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px;margin-bottom:24px;}
+  .viewswitch button{
+    flex:1;cursor:pointer;background:none;border:none;color:var(--muted);
+    font-family:'Oswald',sans-serif;font-weight:500;font-size:15px;letter-spacing:.05em;
+    padding:11px;border-radius:10px;transition:.16s;display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .viewswitch button.on{background:var(--surface2);color:var(--text);box-shadow:0 4px 16px -10px #000;}
+  .viewswitch button:not(.on):hover{color:var(--text);}
+  .vs-ic{font-size:16px;}
+  body[data-view="diet"] #toggle{display:none;}
+
+  /* ---------- nutrition ---------- */
+  .creatine-tag{
+    font-family:'Oswald',sans-serif;font-size:12px;letter-spacing:.04em;color:var(--lower);
+    background:color-mix(in srgb,var(--lower) 12%,transparent);border:1px solid color-mix(in srgb,var(--lower) 30%,transparent);
+    border-radius:8px;padding:6px 10px;white-space:nowrap;
+  }
+  .diet-summary{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:22px;}
+  .ds-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .ds-total{font-family:'Oswald',sans-serif;font-weight:700;font-size:44px;line-height:.9;letter-spacing:.01em;color:var(--accent);}
+  .ds-unit{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.03em;}
+  .ds-goal{text-align:right;}
+  .ds-goal label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-weight:700;}
+  .ds-goal-row{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:5px;}
+  .ds-goal-row input{
+    width:82px;height:38px;background:var(--bg);border:1px solid var(--line);border-radius:9px;text-align:right;
+    color:var(--text);font-family:'Oswald',sans-serif;font-weight:600;font-size:18px;padding:0 8px;transition:.15s;
+  }
+  .ds-goal-row input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent);}
+  .ds-goal-row span{color:var(--muted);font-size:12px;font-weight:700;}
+  .ds-diff{margin-top:8px;font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.02em;}
+  .ds-diff.over{color:var(--legs);}
+  .ds-diff.under{color:#f5a623;}
+  .ds-bar{height:9px;background:var(--bg);border-radius:99px;margin:16px 0 6px;overflow:hidden;border:1px solid var(--line);}
+  .ds-bar-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s;}
+  .ds-eaten{font-size:12.5px;color:var(--muted);}
+  .ds-eaten b{color:var(--text);}
+
+  .meals{display:flex;flex-direction:column;gap:10px;}
+  .meal{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 13px 13px 10px;transition:.16s;}
+  .meal.eaten{border-color:color-mix(in srgb,var(--legs) 45%,var(--line));background:color-mix(in srgb,var(--legs) 7%,var(--surface));}
+  .meal-time-in{
+    width:60px;flex:none;background:var(--bg);border:1px solid transparent;border-radius:8px;
+    font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;color:var(--accent);
+    text-align:center;padding:6px 2px;transition:.14s;
+  }
+  .meal-time-in:hover{border-color:var(--line);}
+  .meal-time-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 25%,transparent);}
+  .meal-body{flex:1;min-width:0;}
+  .meal-name-in{
+    width:100%;background:transparent;border:1px solid transparent;border-radius:8px;
+    color:var(--text);font-family:'Manrope';font-weight:700;font-size:15px;padding:5px 7px;transition:.14s;
+  }
+  .meal-name-in:hover{border-color:var(--line);background:var(--bg);}
+  .meal-name-in:focus{outline:none;border-color:var(--accent);background:var(--bg);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent);}
+  .meal-opts{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+  .opt{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);
+    background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 9px;transition:.14s;font-family:'Manrope';
+  }
+  .opt:hover{color:var(--text);border-color:var(--muted2);}
+  .opt.sel{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent);}
+  .opt-l{outline:none;padding:1px 2px;border-radius:4px;min-width:20px;}
+  .opt-l:focus{background:var(--bg2);box-shadow:0 0 0 1px var(--accent);}
+  .opt-k{
+    width:46px;background:transparent;border:none;border-left:1px solid var(--line);
+    color:inherit;font-family:'Oswald',sans-serif;font-size:12px;text-align:right;padding:0 2px 0 6px;
+  }
+  .opt-k:focus{outline:none;}
+  .opt-x{color:var(--muted2);font-size:10px;padding:2px 3px;border-radius:4px;}
+  .opt-x:hover{color:#ff6b5b;background:color-mix(in srgb,#ff6b5b 15%,transparent);}
+  .opt-add{
+    cursor:pointer;font-size:11.5px;font-weight:700;color:var(--muted2);background:transparent;
+    border:1px dashed var(--line);border-radius:8px;padding:5px 9px;transition:.14s;font-family:'Manrope';
+  }
+  .opt-add:hover{color:var(--accent);border-color:var(--accent);}
+  .opt-add.solo{margin-top:9px;}
+  .meal-note{font-size:12px;color:var(--muted2);margin-top:8px;line-height:1.45;padding-left:7px;}
+  .meal-right{display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex:none;}
+  .meal-kcal{display:flex;align-items:center;gap:4px;}
+  .kcal-fixed{font-family:'Oswald',sans-serif;font-weight:600;font-size:17px;color:var(--text);min-width:34px;text-align:right;}
+  .meal-k-in{
+    width:62px;height:34px;background:var(--bg);border:1px solid var(--line);border-radius:9px;text-align:right;
+    color:var(--text);font-family:'Oswald',sans-serif;font-weight:600;font-size:16px;padding:0 7px;transition:.15s;
+  }
+  .meal-k-in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 26%,transparent);}
+  .meal-kcal span{font-size:10px;color:var(--muted2);font-weight:700;}
+  .meal-acts{display:flex;gap:5px;}
+  .meal-eat,.meal-del{
+    width:32px;height:32px;border-radius:9px;cursor:pointer;background:var(--bg);border:1px solid var(--line);
+    color:var(--muted2);font-size:14px;line-height:1;transition:.15s;
+  }
+  .meal-eat:hover{border-color:var(--legs);color:var(--legs);}
+  .meal.eaten .meal-eat{background:var(--legs);border-color:var(--legs);color:#12141a;}
+  .meal-del:hover{color:#ff6b5b;border-color:color-mix(in srgb,#ff6b5b 45%,transparent);}
+  .diet-note{margin-top:20px;font-size:12.5px;color:var(--muted2);line-height:1.6;border-top:1px solid var(--line);padding-top:16px;}
+  .diet-note b{color:var(--muted);}
+
   /* ---------- Notes ---------- */
   details.notes{margin-top:34px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;}
   details.notes summary{
@@ -463,15 +562,52 @@
 </div>
 
 <div class="wrap">
-  <div class="rail" id="rail"></div>
-  <div id="rest"></div>
-  <div class="dayhead" id="dayhead"></div>
-  <div class="list" id="list"></div>
+  <div class="viewswitch" id="viewswitch">
+    <button data-view="train" class="on"><span class="vs-ic">🏋</span> Προπόνηση</button>
+    <button data-view="diet"><span class="vs-ic">🍽</span> Διατροφή</button>
+  </div>
 
-  <details class="notes">
-    <summary>Σχετικά με το πρόγραμμα <span class="plus">＋</span></summary>
-    <div class="notes-body" id="notes"></div>
-  </details>
+  <div id="view-train">
+    <div class="rail" id="rail"></div>
+    <div id="rest"></div>
+    <div class="dayhead" id="dayhead"></div>
+    <div class="list" id="list"></div>
+
+    <details class="notes">
+      <summary>Σχετικά με το πρόγραμμα <span class="plus">＋</span></summary>
+      <div class="notes-body" id="notes"></div>
+    </details>
+  </div>
+
+  <div id="view-diet" style="display:none">
+    <div class="dayhead">
+      <div>
+        <div class="idx"><span class="dot"></span>Διατροφή · Όγκος</div>
+        <h2>Το φαγητό μου</h2>
+      </div>
+      <div class="creatine-tag">💊 5g κρεατίνη / ημέρα</div>
+    </div>
+
+    <div class="diet-summary">
+      <div class="ds-top">
+        <div class="ds-main">
+          <div class="ds-total" id="ds-total">0</div>
+          <div class="ds-unit">kcal / ημέρα (πλάνο)</div>
+        </div>
+        <div class="ds-goal">
+          <label for="ds-goal-input">Στόχος</label>
+          <div class="ds-goal-row"><input id="ds-goal-input" type="number" inputmode="numeric" step="50" min="0"><span>kcal</span></div>
+          <div class="ds-diff" id="ds-diff"></div>
+        </div>
+      </div>
+      <div class="ds-bar"><div class="ds-bar-fill" id="ds-bar"></div></div>
+      <div class="ds-eaten" id="ds-eaten"></div>
+    </div>
+
+    <div class="meals" id="meals"></div>
+
+    <div class="diet-note" id="diet-note"></div>
+  </div>
 </div>
 
 <div class="backdrop" id="backdrop">
@@ -1239,10 +1375,195 @@ document.getElementById("prof-new-name").addEventListener("keydown", e=>{
   if(e.key==="Enter"){ const el=e.target; newProfile(el.value); el.value=""; }
 });
 
+/* ---------- nutrition ---------- */
+const DEFAULT_MEALS = [
+  { id:"m1", time:"07:20", name:"2 φέτες μικρό κέικ", kcal:330 },
+  { id:"m2", time:"10:30", name:"Μπανάνα", kcal:105 },
+  { id:"m3", time:"13:00", name:"Κυρίως γεύμα", note:"Συνοδευτικό ρύζι όπου χρειάζεται.", sel:"o31", choose:[
+      { id:"o31", label:"Μακαρόνια με κιμά", kcal:640 },
+      { id:"o32", label:"Κοτόπουλο + ρύζι", kcal:560 },
+      { id:"o33", label:"Γεμιστά", kcal:470 },
+      { id:"o34", label:"Αρακάς + ρύζι", kcal:470 },
+      { id:"o35", label:"Φασολάκια + ρύζι", kcal:420 },
+      { id:"o36", label:"Φακές", kcal:420 }
+    ] },
+  { id:"m4", time:"15:00", name:"80g μιξ ξηρών καρπών", kcal:480 },
+  { id:"m5", time:"18:00", name:"300ml γάλα + μπανάνα + 5g κρεατίνη", note:"Μετά την προπόνηση.", kcal:290 },
+  { id:"m6", time:"21:00", name:"Βραδινό", sel:"o61", choose:[
+      { id:"o61", label:"Πιάτο μακαρόνια", kcal:550 },
+      { id:"o62", label:"2 τοστ (γκούντα + γαλοπούλα)", kcal:460 }
+    ] }
+];
+const DIET_NOTE = `Όλα εδώ αλλάζουν: πάτα σε ώρα, όνομα ή θερμίδες για να τα διορθώσεις, <b>✕</b> για να σβήσεις, <b>+ Πρόσθεσε γεύμα</b> για νέο. Οι θερμίδες είναι <b>κατά προσέγγιση</b> — προσάρμοσέ τες στη μερίδα σου. Για όγκο: αν το βάρος δεν ανεβαίνει μετά από 2–3 εβδομάδες, ανέβασε ~200–300 kcal. Η κρεατίνη δεν έχει θερμίδες. Για εξατομικευμένο πλάνο, ένας διαιτολόγος βοηθά.`;
+
+const DKEY = "gymdiet:v2";
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function uid(p){ return p+Date.now().toString(36)+Math.floor(Math.random()*1000); }
+function loadDiet(){
+  let d = {};
+  try{ d = JSON.parse(localStorage.getItem(DKEY)) || {}; }catch(e){}
+  if(!Array.isArray(d.meals) || !d.meals.length) d.meals = JSON.parse(JSON.stringify(DEFAULT_MEALS));
+  if(d.goal==null) d.goal = 2800;
+  if(!d.eaten) d.eaten = {};
+  if(d.eatenDate !== todayStr()){ d.eaten = {}; d.eatenDate = todayStr(); }
+  return d;
+}
+let DIET = loadDiet();
+function saveDiet(){ try{ localStorage.setItem(DKEY, JSON.stringify(DIET)); }catch(e){} }
+
+function mealKcal(m){
+  if(m.choose && m.choose.length){
+    const o = m.choose.find(x=>x.id===m.sel) || m.choose[0];
+    return o ? (o.kcal||0) : 0;
+  }
+  return m.kcal||0;
+}
+function plannedTotal(){ return DIET.meals.reduce((s,m)=>s+mealKcal(m),0); }
+function eatenTotal(){ return DIET.meals.reduce((s,m)=>s+(DIET.eaten[m.id]?mealKcal(m):0),0); }
+
+function refreshTotals(){
+  const total = plannedTotal(), goal = DIET.goal||0;
+  document.getElementById("ds-total").textContent = total;
+  const diff = total - goal;
+  const de = document.getElementById("ds-diff");
+  if(goal>0){
+    de.className = "ds-diff " + (diff>=0?"over":"under");
+    de.textContent = diff>=0 ? `Πλεόνασμα +${diff} kcal` : `Λείπουν ${-diff} kcal`;
+  } else { de.textContent=""; de.className="ds-diff"; }
+  document.getElementById("ds-bar").style.width = goal>0 ? Math.min(100,Math.round(total/goal*100))+"%" : "0%";
+  const anyEaten = DIET.meals.some(m=>DIET.eaten[m.id]);
+  document.getElementById("ds-eaten").innerHTML = anyEaten
+    ? `Έφαγα σήμερα: <b>${eatenTotal()} kcal</b> από ${total} του πλάνου`
+    : `Τσέκαρε τα γεύματα (✓) καθώς τα τρως για να μετράς τι έφαγες σήμερα.`;
+}
+
+function addMeal(){
+  DIET.meals.push({ id:uid("m"), time:"12:00", name:"Νέο γεύμα", kcal:0 });
+  saveDiet(); renderDiet();
+}
+function removeMeal(id){
+  DIET.meals = DIET.meals.filter(m=>m.id!==id);
+  delete DIET.eaten[id];
+  saveDiet(); renderDiet();
+}
+function addOption(m){
+  if(!m.choose){ m.choose = [{ id:uid("o"), label:m.name||"Επιλογή 1", kcal:m.kcal||0 }]; m.sel = m.choose[0].id; }
+  const o = { id:uid("o"), label:"Νέα επιλογή", kcal:0 };
+  m.choose.push(o); m.sel = o.id;
+  saveDiet(); renderDiet();
+}
+function removeOption(m,oid){
+  m.choose = m.choose.filter(o=>o.id!==oid);
+  if(m.choose.length===0){ delete m.choose; delete m.sel; m.kcal = m.kcal||0; }
+  else if(m.sel===oid) m.sel = m.choose[0].id;
+  saveDiet(); renderDiet();
+}
+
+function renderDiet(){
+  const gi = document.getElementById("ds-goal-input");
+  if(document.activeElement !== gi) gi.value = DIET.goal||0;
+
+  const wrap = document.getElementById("meals");
+  wrap.innerHTML = "";
+  DIET.meals.forEach(m=>{
+    const row = document.createElement("div");
+    row.className = "meal"+(DIET.eaten[m.id]?" eaten":"");
+    const hasCh = !!(m.choose && m.choose.length);
+    const opts = hasCh ? `<div class="meal-opts">${
+      m.choose.map(o=>`<span class="opt${o.id===m.sel?' sel':''}" data-opt="${o.id}">
+        <span class="opt-l" data-oid="${o.id}" contenteditable="true">${esc(o.label)}</span>
+        <input class="opt-k" type="number" inputmode="numeric" step="10" min="0" value="${o.kcal||0}" data-oid="${o.id}">
+        <span class="opt-x" data-rm="${o.id}" title="Διαγραφή επιλογής">✕</span>
+      </span>`).join("")
+    }<button class="opt-add" title="Νέα επιλογή">+ επιλογή</button></div>` : "";
+    const note = m.note ? `<div class="meal-note">${esc(m.note)}</div>` : "";
+    row.innerHTML = `
+      <input class="meal-time-in" value="${esc(m.time||"")}" placeholder="ώρα">
+      <div class="meal-body">
+        <input class="meal-name-in" value="${esc(m.name||"")}" placeholder="Όνομα γεύματος">
+        ${opts}${note}
+        ${hasCh?"":`<button class="opt-add solo">+ κάνε το επιλογές</button>`}
+      </div>
+      <div class="meal-right">
+        <div class="meal-kcal">
+          ${hasCh
+            ? `<span class="kcal-fixed">${mealKcal(m)}</span><span>kcal</span>`
+            : `<input class="meal-k-in" type="number" inputmode="numeric" step="10" min="0" value="${m.kcal||0}"><span>kcal</span>`}
+        </div>
+        <div class="meal-acts">
+          <button class="meal-eat" title="Το έφαγα">✓</button>
+          <button class="meal-del" title="Διαγραφή γεύματος">✕</button>
+        </div>
+      </div>`;
+
+    row.querySelector(".meal-time-in").addEventListener("input", e=>{ m.time=e.target.value; saveDiet(); });
+    row.querySelector(".meal-name-in").addEventListener("input", e=>{ m.name=e.target.value; saveDiet(); });
+    const ki = row.querySelector(".meal-k-in");
+    if(ki) ki.addEventListener("input", e=>{ m.kcal = parseInt(e.target.value,10)||0; saveDiet(); refreshTotals(); });
+
+    row.querySelectorAll(".opt").forEach(op=>{
+      op.addEventListener("click", ev=>{
+        if(ev.target.closest(".opt-x")||ev.target.closest(".opt-k")||ev.target.closest(".opt-l")) return;
+        m.sel = op.dataset.opt; saveDiet(); renderDiet();
+      });
+    });
+    row.querySelectorAll(".opt-l").forEach(el=>{
+      el.addEventListener("input", ()=>{ const o=m.choose.find(x=>x.id===el.dataset.oid); if(o){ o.label=el.textContent; saveDiet(); } });
+      el.addEventListener("keydown", ev=>{ if(ev.key==="Enter"){ ev.preventDefault(); el.blur(); } });
+    });
+    row.querySelectorAll(".opt-k").forEach(el=>{
+      el.addEventListener("input", ()=>{
+        const o=m.choose.find(x=>x.id===el.dataset.oid);
+        if(o){ o.kcal=parseInt(el.value,10)||0; saveDiet();
+          if(o.id===m.sel){ const f=row.querySelector(".kcal-fixed"); if(f) f.textContent=mealKcal(m); }
+          refreshTotals(); }
+      });
+    });
+    row.querySelectorAll(".opt-x").forEach(el=>{
+      el.addEventListener("click", ev=>{ ev.stopPropagation(); removeOption(m, el.dataset.rm); });
+    });
+    row.querySelectorAll(".opt-add").forEach(el=>{ el.onclick = ()=>addOption(m); });
+    row.querySelector(".meal-eat").onclick = ()=>{
+      if(DIET.eaten[m.id]) delete DIET.eaten[m.id]; else DIET.eaten[m.id]=true;
+      DIET.eatenDate = todayStr(); saveDiet(); renderDiet();
+    };
+    row.querySelector(".meal-del").onclick = ()=>removeMeal(m.id);
+    wrap.appendChild(row);
+  });
+
+  const add = document.createElement("button");
+  add.className = "addex";
+  add.innerHTML = `<span class="addex-ic">+</span> Πρόσθεσε γεύμα`;
+  add.onclick = addMeal;
+  wrap.appendChild(add);
+
+  refreshTotals();
+}
+document.getElementById("ds-goal-input").addEventListener("input", ()=>{
+  const v = document.getElementById("ds-goal-input").value.trim();
+  DIET.goal = v==="" ? 0 : (parseInt(v,10)||0);
+  saveDiet(); refreshTotals();
+});
+document.getElementById("diet-note").innerHTML = DIET_NOTE;
+
+/* ---------- view switch ---------- */
+function setView(v){
+  document.body.dataset.view = v;
+  document.getElementById("view-train").style.display = v==="train" ? "" : "none";
+  document.getElementById("view-diet").style.display  = v==="diet"  ? "" : "none";
+  document.querySelectorAll("#viewswitch button").forEach(b=>b.classList.toggle("on", b.dataset.view===v));
+  if(v==="diet") renderDiet();
+}
+document.getElementById("viewswitch").addEventListener("click", ev=>{
+  const b = ev.target.closest("button"); if(!b) return;
+  setView(b.dataset.view);
+});
+
 /* ---------- init ---------- */
 document.getElementById("notes").innerHTML = NOTES;
 syncModeToggle();
 renderProfilePill();
+setView("train");
 const t = pickToday();
 dayIndex = t>=0 ? t : 0;
 renderAll();
