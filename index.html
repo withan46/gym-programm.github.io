@@ -261,6 +261,10 @@
   .pick-add:hover{filter:brightness(1.08);transform:translateY(-1px);}
   .pick-add:active{transform:scale(.94);}
   .pick-empty{text-align:center;color:var(--muted);font-size:14px;padding:30px 10px;}
+  .day-empty{
+    text-align:center;color:var(--muted2);font-size:13.5px;line-height:1.5;
+    padding:22px 16px;border:1px dashed var(--line);border-radius:12px;background:var(--bg2);margin-bottom:4px;
+  }
 
   /* ---------- Notes ---------- */
   details.notes{margin-top:34px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;}
@@ -393,6 +397,22 @@
     color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);
     border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:7px;padding:2px 8px;
   }
+  .nbadge{
+    display:inline-flex;align-items:center;margin-top:7px;margin-left:6px;font-size:12px;
+    background:var(--bg2);border:1px solid var(--line);border-radius:7px;padding:2px 7px;cursor:help;
+  }
+
+  /* comment / note field */
+  .cmt{margin-top:22px;}
+  .cmt-h{display:block;font-family:'Oswald',sans-serif;font-weight:500;letter-spacing:.14em;
+    text-transform:uppercase;font-size:12px;color:var(--muted);margin-bottom:11px;}
+  .cmt-input{
+    width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    color:var(--text);font-family:'Manrope',sans-serif;font-size:14px;line-height:1.5;
+    padding:12px 14px;resize:vertical;min-height:64px;transition:.15s;
+  }
+  .cmt-input::placeholder{color:var(--muted2);}
+  .cmt-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 26%,transparent);}
   .row-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
   .meta-box{flex:1;min-width:130px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .meta-box .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-weight:700;margin-bottom:6px;}
@@ -507,6 +527,10 @@
       </div>
       <p class="cues-h">Εκτέλεση · Σημεία-κλειδιά</p>
       <ul class="cues" id="m-cues"></ul>
+      <div class="cmt">
+        <label class="cmt-h" for="m-note">📝 Η σημείωσή μου</label>
+        <textarea id="m-note" class="cmt-input" rows="3" placeholder="π.χ. ρύθμιση καθίσματος 4 · μπλε λαβή · πρόσεχε τον ώμο · στόχος +2,5kg…"></textarea>
+      </div>
     </div>
   </div>
 </div>
@@ -706,12 +730,13 @@ function loadStore(){
 function STORE_ok(raw){ return raw.profiles[raw.active] != null; }
 
 let STORE = loadStore();
-let WEIGHTS = {}, ADDED = {}, mode = "four";
+let WEIGHTS = {}, ADDED = {}, COMMENTS = {}, mode = "four";
 function useActive(){
   const p = STORE.profiles[STORE.active];
-  WEIGHTS = p.weights || (p.weights={});
-  ADDED   = p.added   || (p.added={});
-  mode    = p.mode    || "four";
+  WEIGHTS  = p.weights || (p.weights={});
+  ADDED    = p.added   || (p.added={});
+  COMMENTS = p.notes   || (p.notes={});
+  mode     = p.mode    || "four";
 }
 useActive();
 function saveW(){ saveStore(); }
@@ -721,6 +746,11 @@ function wBadge(e){
   const r = WEIGHTS[e.name];
   if(!r || r.w==null || r.w==="") return "";
   return `<span class="wbadge">🏋 ${r.w} kg${(r.reps!=null&&r.reps!=="")?` × ${r.reps}`:""}</span>`;
+}
+function noteBadge(e){
+  const n = COMMENTS[e.name];
+  if(!n || !n.trim()) return "";
+  return `<span class="nbadge" title="${esc(n)}">📝</span>`;
 }
 
 const ALL = Object.values(E);
@@ -733,8 +763,10 @@ function groupOf(e){
   return "push";
 }
 function dayId(d){ return mode+"|"+d.ttl; }
+function isBlankProfile(){ return !!STORE.profiles[STORE.active].blank; }
+function baseList(d){ return isBlankProfile() ? [] : d.list; }
 function addedIds(d){ return ADDED[dayId(d)] || []; }
-function fullList(d){ return d.list.concat(addedIds(d).map(id=>E[id]).filter(Boolean)); }
+function fullList(d){ return baseList(d).concat(addedIds(d).map(id=>E[id]).filter(Boolean)); }
 function candidates(d){
   const present = new Set(fullList(d).map(e=>e.id));
   const allow = ALLOWED[d.type] || [];
@@ -900,7 +932,7 @@ function renderDay(){
       <div class="mid">
         <div class="name">${nameLine}</div>
         <div class="tags">${tags}</div>
-        ${wBadge(e)}
+        ${wBadge(e)}${noteBadge(e)}
       </div>
       <div class="sr"><small>ΣΕΤ × ΕΠΑΝ.</small>${e.sr}</div>
       ${isCustom
@@ -916,6 +948,13 @@ function renderDay(){
     }
     list.appendChild(btn);
   });
+
+  if(items.length===0){
+    const empty = document.createElement("div");
+    empty.className = "day-empty";
+    empty.textContent = "Κενή μέρα — πρόσθεσε τις δικές σου ασκήσεις με το κουμπί παρακάτω.";
+    list.appendChild(empty);
+  }
 
   const add = document.createElement("button");
   add.className = "addex";
@@ -958,6 +997,7 @@ function openModal(e){
   document.getElementById("wt-reps").value = (rec.reps!=null) ? rec.reps : "";
   document.getElementById("wt-date").textContent = rec.ts ? "ενημ. "+fmtDate(rec.ts) : "";
   updateHint(e);
+  document.getElementById("m-note").value = COMMENTS[e.name] || "";
 
   // gif (falls back to placeholder if the file isn't in ./gifs/ yet)
   const gw = document.getElementById("gifwrap");
@@ -1015,6 +1055,16 @@ document.getElementById("wt-plus").onclick = ()=>step(2.5);
 document.getElementById("wt-minus").onclick = ()=>step(-2.5);
 document.getElementById("wt-weight").addEventListener("input", commitW);
 document.getElementById("wt-reps").addEventListener("input", commitW);
+
+/* note save */
+document.getElementById("m-note").addEventListener("input", ()=>{
+  if(!currentEx) return;
+  const v = document.getElementById("m-note").value;
+  if(v.trim()==="") delete COMMENTS[currentEx.name];
+  else COMMENTS[currentEx.name] = v;
+  saveStore();
+  renderDay(); // refresh the 📝 marker on the list
+});
 
 /* ---------- exercise picker ---------- */
 const GRP_LBL = { push:"Push", pull:"Pull", legs:"Πόδια / Κορμός" };
@@ -1102,7 +1152,7 @@ function switchProfile(id){
 function newProfile(name){
   const id = "p"+Date.now();
   const n = (name||"").trim() || ("Προφίλ "+(Object.keys(STORE.profiles).length+1));
-  STORE.profiles[id] = { name:n, mode:"four", weights:{}, added:{} };
+  STORE.profiles[id] = { name:n, mode:"four", weights:{}, added:{}, notes:{}, blank:true };
   STORE.active = id; saveStore();
   switchToActiveProfile(); renderProfiles();
 }
@@ -1110,9 +1160,10 @@ function duplicateProfile(id){
   const src = STORE.profiles[id]; if(!src) return;
   const nid = "p"+Date.now();
   STORE.profiles[nid] = {
-    name: src.name+" (αντίγραφο)", mode: src.mode,
+    name: src.name+" (αντίγραφο)", mode: src.mode, blank: !!src.blank,
     weights: JSON.parse(JSON.stringify(src.weights||{})),
-    added:   JSON.parse(JSON.stringify(src.added||{}))
+    added:   JSON.parse(JSON.stringify(src.added||{})),
+    notes:   JSON.parse(JSON.stringify(src.notes||{}))
   };
   STORE.active = nid; saveStore();
   switchToActiveProfile(); renderProfiles();
