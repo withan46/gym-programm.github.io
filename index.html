@@ -162,6 +162,52 @@
   }
   .restnote b{color:var(--text);}
 
+  /* add-exercise button + custom markers */
+  .addex{
+    display:flex;align-items:center;justify-content:center;gap:9px;width:100%;cursor:pointer;
+    margin-top:4px;padding:14px;border:1px dashed var(--line);border-radius:14px;
+    background:transparent;color:var(--muted);font-family:'Oswald',sans-serif;font-weight:500;
+    font-size:15px;letter-spacing:.06em;transition:.16s;
+  }
+  .addex:hover{border-color:var(--accent);color:var(--accent);background:var(--surface);}
+  .addex-ic{
+    display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
+    background:currentColor;color:var(--bg);font-size:18px;font-weight:700;line-height:1;
+  }
+  .custom-pill{
+    display:inline-block;font-family:'Manrope';font-size:10px;font-weight:800;letter-spacing:.04em;
+    vertical-align:middle;margin-left:6px;color:var(--accent);
+    background:color-mix(in srgb,var(--accent) 14%,transparent);
+    border:1px solid color-mix(in srgb,var(--accent) 32%,transparent);border-radius:5px;padding:1px 6px;
+  }
+  .ex-remove{
+    flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    color:var(--muted2);font-size:15px;cursor:pointer;transition:.15s;border:1px solid transparent;
+  }
+  .ex-remove:hover{color:#ff6b5b;border-color:color-mix(in srgb,#ff6b5b 40%,transparent);background:color-mix(in srgb,#ff6b5b 12%,transparent);}
+
+  /* picker overlay */
+  .pickmodal{max-width:560px;}
+  .pick-body{padding:8px 22px 30px;}
+  .pick-note{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px;}
+  .pick-note b{color:var(--text);}
+  .pick-list{display:flex;flex-direction:column;gap:8px;}
+  .pick-row{
+    display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:11px 12px 11px 15px;
+  }
+  .pick-mid{flex:1;min-width:0;}
+  .pick-name{font-weight:700;font-size:14.5px;line-height:1.25;}
+  .pick-row .tags{margin-top:5px;}
+  .pick-add{
+    flex:none;width:40px;height:40px;border-radius:10px;cursor:pointer;
+    background:var(--accent);color:#12141a;border:none;font-size:24px;font-weight:700;line-height:1;
+    font-family:'Oswald',sans-serif;transition:.15s;
+  }
+  .pick-add:hover{filter:brightness(1.08);transform:translateY(-1px);}
+  .pick-add:active{transform:scale(.94);}
+  .pick-empty{text-align:center;color:var(--muted);font-size:14px;padding:30px 10px;}
+
   /* ---------- Notes ---------- */
   details.notes{margin-top:34px;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;}
   details.notes summary{
@@ -404,6 +450,22 @@
   </div>
 </div>
 
+<div class="backdrop" id="pickBackdrop">
+  <div class="modal pickmodal" role="dialog" aria-modal="true" aria-labelledby="pick-title">
+    <div class="m-top">
+      <div>
+        <div class="eb" id="pick-eb"></div>
+        <h3 id="pick-title">Πρόσθεσε άσκηση</h3>
+      </div>
+      <button class="m-close" id="pick-close" aria-label="Κλείσιμο">✕</button>
+    </div>
+    <div class="pick-body">
+      <div class="pick-note" id="pick-note"></div>
+      <div class="pick-list" id="pick-list"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ---------- muscle id maps for the silhouettes ---------- */
 const MUS = {
@@ -474,6 +536,56 @@ const E = {
     ["Ελεγχόμενη κίνηση.","Πλήρης έκταση — σφίξε στην κορυφή.","Χωρίς απότομη πτώση του βάρους."])
 };
 
+/* ---------- extra exercises available to ADD per day (ready list) ---------- */
+Object.assign(E, {
+  dbBench:   ex("Πιέσεις στήθους με αλτήρες","3 × 8–12",["Στήθος","Ώμοι","Τρικέφαλα"],"flat dumbbell bench press form",
+    ["Ωμοπλάτες μαζεμένες.","Κατέβασε ελεγχόμενα στο ύψος του στήθους.","Σπρώξε χωρίς να χτυπάς τους αλτήρες."]),
+  pecdeck:   ex("Πεταλούδα (pec deck)","3 × 12–15",["Στήθος"],"pec deck machine fly form",
+    ["Αγκώνες ελαφρώς λυγισμένοι, σταθεροί.","Φέρε τα χέρια μπροστά σφίγγοντας το στήθος.","Ελεγχόμενο άνοιγμα."]),
+  crossover: ex("Σταυρώματα τροχαλίας","3 × 12–15",["Στήθος"],"cable crossover form",
+    ["Ελαφρύ σκύψιμο μπροστά.","Φέρε τα χέρια κάτω-μπροστά, σφίξε το στήθος.","Έλεγχος στην επιστροφή."]),
+  machSh:    ex("Πιέσεις ώμων σε μηχάνημα","3 × 8–12",["Ώμοι","Τρικέφαλα"],"machine shoulder press form",
+    ["Πλάτη στηριγμένη.","Σπρώξε ως σχεδόν πλήρη έκταση.","Μην κλειδώνεις απότομα."]),
+  frontRaise:ex("Άρσεις εμπρός (front raise)","3 × 12–15",["Ώμοι"],"dumbbell front raise form",
+    ["Σήκωσε ως το ύψος των ώμων.","Χωρίς φόρα από τη μέση.","Ελεγχόμενο κατέβασμα."]),
+  dips:      ex("Βυθίσεις (dips)","3 × 8–12",["Στήθος","Τρικέφαλα"],"chest dips form",
+    ["Γείρε ελαφρώς μπροστά για στήθος.","Κατέβα ελεγχόμενα ως ~90°.","Σπρώξε ψηλά χωρίς αιώρηση."]),
+  skull:     ex("Γαλλικές πιέσεις (skullcrusher)","3 × 8–12",["Τρικέφαλα"],"barbell skullcrusher form",
+    ["Αγκώνες σταθεροί, δείχνουν ψηλά.","Κατέβασε τη μπάρα προς το μέτωπο.","Τέντωσε χωρίς να ανοίγουν οι αγκώνες."]),
+  dbRow:     ex("Κωπηλατική με αλτήρα (μονόχειρη)","3 × 8–12 ανά χέρι",["Πλάτη","Δικέφαλα"],"one arm dumbbell row form",
+    ["Στήριξη με το άλλο χέρι, ίσια πλάτη.","Τράβα τον αγκώνα προς τα πίσω.","Σφίξε την ωμοπλάτη στην κορυφή."]),
+  cgPull:    ex("Έλξεις τροχαλίας στενή λαβή","3 × 8–12",["Πλάτη","Δικέφαλα"],"close grip lat pulldown form",
+    ["Ουδέτερη/στενή λαβή.","Τράβα στο πάνω στήθος, αγκώνες κάτω.","Έλεγχος στην επιστροφή."]),
+  facePull:  ex("Έλξεις προσώπου (face pull)","3 × 15–20",["Πλάτη","Ώμοι"],"cable face pull form",
+    ["Τράβα προς το πρόσωπο, αγκώνες ψηλά.","Στρίψε ελαφρώς έξω στην κορυφή.","Ελαφρύ βάρος, καθαρή εκτέλεση."]),
+  bbCurl:    ex("Κάμψεις δικεφάλων με μπάρα","3 × 8–12",["Δικέφαλα"],"barbell curl form",
+    ["Αγκώνες σταθεροί στα πλευρά.","Χωρίς φόρα από τη μέση.","Ελεγχόμενο κατέβασμα."]),
+  inclCurl:  ex("Κάμψεις σε πάγκο κλίσης","3 × 10–12",["Δικέφαλα"],"incline dumbbell curl form",
+    ["Πλάτη στον πάγκο, χέρια κρέμονται.","Κάμψη χωρίς να κουνάς τους ώμους.","Πλήρες τέντωμα κάτω."]),
+  shrug:     ex("Ανασηκώσεις ώμων (shrugs)","3 × 12–15",["Πλάτη"],"dumbbell shrug traps form",
+    ["Σήκωσε τους ώμους ίσια πάνω.","Παύση & σφίξιμο στην κορυφή.","Χωρίς περιστροφή ώμων."]),
+  frontSq:   ex("Μπροστινό κάθισμα (front squat)","3 × 5–8",["Τετρακέφαλα","Γλουτοί"],"barbell front squat form",
+    ["Αγκώνες ψηλά, κορμός όρθιος.","Κατέβα με ίσια μέση.","Βάρος στη μέση του πέλματος."]),
+  hack:      ex("Hack squat","3 × 8–12",["Τετρακέφαλα","Γλουτοί"],"hack squat machine form",
+    ["Πλάτη στο μαξιλάρι.","Κατέβα ελεγχόμενα ως παράλληλο.","Μην κλειδώνεις απότομα."]),
+  walkLunge: ex("Προβολές περπατήματος","3 × 10–12 ανά πόδι",["Τετρακέφαλα","Γλουτοί"],"walking lunges form",
+    ["Μεγάλο βήμα, κορμός όρθιος.","Γόνατο μπροστινού πάνω από αστράγαλο.","Σπρώξε από τη φτέρνα."]),
+  goblet:    ex("Goblet squat","3 × 10–15",["Τετρακέφαλα","Γλουτοί"],"goblet squat form",
+    ["Κράτα αλτήρα στο στήθος.","Κατέβα με ίσια μέση, κάθετους αγκώνες.","Σπρώξε από όλο το πέλμα."]),
+  seatCalf:  ex("Ανορθώσεις γαμπών καθιστός","3–4 × 12–20",["Γάμπες"],"seated calf raise form",
+    ["Πλήρες εύρος, παύση στην κορυφή.","Έλεγχος στο κατέβασμα.","Χωρίς αναπήδηση."]),
+  gluteBr:   ex("Glute bridge","3 × 12–15",["Γλουτοί","Οπ. μηριαία"],"glute bridge form",
+    ["Σπρώξε από τις φτέρνες.","Σφίξε γλουτούς στην κορυφή.","Μην υπερεκτείνεις τη μέση."]),
+  plank:     ex("Σανίδα (plank)","3 × 30–60''",["Κοιλιακοί","Μέση"],"plank exercise form",
+    ["Ίσια γραμμή ώμοι-γοφοί-φτέρνες.","Σφίξε κοιλιακούς & γλουτούς.","Μην πέφτει η λεκάνη."]),
+  cableCr:   ex("Κοιλιακοί στην τροχαλία","3 × 12–15",["Κοιλιακοί"],"cable crunch form",
+    ["Στρογγύλεψε τη μέση φέρνοντας τους αγκώνες κάτω.","Κίνηση από τους κοιλιακούς, όχι τα χέρια.","Ελεγχόμενη επιστροφή."]),
+  legRaise:  ex("Ανασηκώσεις ποδιών","3 × 12–15",["Κοιλιακοί"],"hanging leg raise form",
+    ["Ελεγχόμενο ανέβασμα, χωρίς αιώρηση.","Σφίξε τους κάτω κοιλιακούς.","Αργό κατέβασμα."])
+});
+
+Object.keys(E).forEach(k=> E[k].id = k);
+
 /* ---------- gif filenames (drop matching files into ./gifs/) ---------- */
 const GIFS = {
   bench:"Barbell-Bench-Press", bentRow:"Barbell-Bent-Over-Row", ohp:"Dumbbell-Shoulder-Press",
@@ -482,7 +594,14 @@ const GIFS = {
   calf:"Bench-Press-Machine-Standing-Calf-Raise", abs:"Crunch", incline:"Incline-Dumbbell-Press",
   pulldownB:"Lat-Pulldown", lateral:"Dumbbell-Lateral-Raise", csRow:"45-Degree-Incline-Row",
   hammer:"Hammer-Curl", ohTri:"Dumbbell-Triceps-Extension", deadlift:"Barbell-Deadlift",
-  bulgarian:"Dumbbell-Bulgarian-Split-Squat", hip:"Barbell-Hip-Thrust", legext:"LEG-EXTENSION"
+  bulgarian:"Dumbbell-Bulgarian-Split-Squat", hip:"Barbell-Hip-Thrust", legext:"LEG-EXTENSION",
+  dbBench:"Dumbbell-Bench-Press", pecdeck:"Pec-Deck-Fly", crossover:"Cable-Crossover",
+  machSh:"Machine-Shoulder-Press", frontRaise:"Dumbbell-Front-Raise", dips:"Chest-Dips",
+  skull:"Barbell-Skullcrusher", dbRow:"One-Arm-Dumbbell-Row", cgPull:"Close-Grip-Lat-Pulldown",
+  facePull:"Face-Pull", bbCurl:"Barbell-Curl", inclCurl:"Incline-Dumbbell-Curl", shrug:"Dumbbell-Shrug",
+  frontSq:"Barbell-Front-Squat", hack:"Hack-Squat", walkLunge:"Dumbbell-Walking-Lunge",
+  goblet:"Goblet-Squat", seatCalf:"Seated-Calf-Raise", gluteBr:"Glute-Bridge", plank:"Plank",
+  cableCr:"Cable-Crunch", legRaise:"Hanging-Leg-Raise"
 };
 Object.keys(GIFS).forEach(k=>{ if(E[k]) E[k].gif = "gifs/"+GIFS[k]+".gif"; });
 
@@ -496,6 +615,42 @@ function wBadge(e){
   const r = WEIGHTS[e.name];
   if(!r || r.w==null || r.w==="") return "";
   return `<span class="wbadge">🏋 ${r.w} kg${(r.reps!=null&&r.reps!=="")?` × ${r.reps}`:""}</span>`;
+}
+
+/* ---------- custom exercises added per day (saved in your browser) ---------- */
+const AKEY = "gymadded:v1";
+function loadA(){ try{ return JSON.parse(localStorage.getItem(AKEY)) || {}; }catch(e){ return {}; } }
+function saveA(){ try{ localStorage.setItem(AKEY, JSON.stringify(ADDED)); }catch(e){} }
+let ADDED = loadA();
+
+const ALL = Object.values(E);
+const LEG_M  = ["Τετρακέφαλα","Οπ. μηριαία","Γλουτοί","Γάμπες","Κοιλιακοί","Μέση"];
+const PULL_M = ["Πλάτη","Δικέφαλα","Πήχεις"];
+const ALLOWED = { upper:["push","pull"], lower:["legs"], push:["push"], pull:["pull"], legs:["legs"] };
+function groupOf(e){
+  if(e.muscles.some(m=>LEG_M.includes(m)))  return "legs";
+  if(e.muscles.some(m=>PULL_M.includes(m))) return "pull";
+  return "push";
+}
+function dayId(d){ return mode+"|"+d.ttl; }
+function addedIds(d){ return ADDED[dayId(d)] || []; }
+function fullList(d){ return d.list.concat(addedIds(d).map(id=>E[id]).filter(Boolean)); }
+function candidates(d){
+  const present = new Set(fullList(d).map(e=>e.id));
+  const allow = ALLOWED[d.type] || [];
+  return ALL.filter(e=> allow.includes(groupOf(e)) && !present.has(e.id))
+            .sort((a,b)=> a.name.localeCompare(b.name,"el"));
+}
+function addExercise(d,id){
+  const k = dayId(d);
+  if(!ADDED[k]) ADDED[k] = [];
+  if(!ADDED[k].includes(id)) ADDED[k].push(id);
+  saveA(); renderDay();
+}
+function removeExercise(d,id){
+  const k = dayId(d);
+  if(ADDED[k]) ADDED[k] = ADDED[k].filter(x=>x!==id);
+  saveA(); renderDay();
 }
 
 /* ---------- program: 4-day Upper/Lower ---------- */
@@ -623,34 +778,51 @@ function renderRail(){
 function renderDay(){
   const d = prog()[dayIndex];
   document.documentElement.style.setProperty("--accent", TYPE_C[d.type]);
+  const items = fullList(d);
+  const added = addedIds(d);
   const head = document.getElementById("dayhead");
   head.innerHTML = `
     <div>
       <div class="idx"><span class="dot"></span>${d.dow}</div>
       <h2>${d.ttl}</h2>
     </div>
-    <div class="count"><b>${d.list.length}</b>ασκήσεις</div>`;
+    <div class="count"><b>${items.length}</b>ασκήσεις</div>`;
 
   const list = document.getElementById("list");
   list.innerHTML = "";
-  d.list.forEach((e,i)=>{
+  items.forEach((e,i)=>{
+    const isCustom = added.includes(e.id);
     const btn = document.createElement("button");
     btn.className = "ex";
     const tags = e.muscles.map(m=>`<span class="tag">${m}</span>`).join("");
-    const [sets,reps] = e.sr.split(" × ");
+    const nameLine = e.name + (isCustom ? ` <span class="custom-pill">+ προστέθηκε</span>` : "");
     btn.innerHTML = `
       <div class="n">${String(i+1).padStart(2,"0")}</div>
       <div class="mid">
-        <div class="name">${e.name}</div>
+        <div class="name">${nameLine}</div>
         <div class="tags">${tags}</div>
         ${wBadge(e)}
       </div>
       <div class="sr"><small>ΣΕΤ × ΕΠΑΝ.</small>${e.sr}</div>
-      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`;
+      ${isCustom
+        ? `<span class="ex-remove" title="Αφαίρεση" role="button" tabindex="0" aria-label="Αφαίρεση άσκησης">✕</span>`
+        : `<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`}`;
     btn.onclick = ()=>openModal(e);
     btn.setAttribute("aria-label", e.name+" — άνοιγμα λεπτομερειών");
+    if(isCustom){
+      const rm = btn.querySelector(".ex-remove");
+      const doRemove = (ev)=>{ ev.stopPropagation(); ev.preventDefault(); removeExercise(d, e.id); };
+      rm.addEventListener("click", doRemove);
+      rm.addEventListener("keydown", ev=>{ if(ev.key==="Enter"||ev.key===" ") doRemove(ev); });
+    }
     list.appendChild(btn);
   });
+
+  const add = document.createElement("button");
+  add.className = "addex";
+  add.innerHTML = `<span class="addex-ic">+</span> Πρόσθεσε άσκηση`;
+  add.onclick = ()=>openPicker(d);
+  list.appendChild(add);
 }
 
 function renderAll(){renderRail();renderDay();}
@@ -744,6 +916,52 @@ document.getElementById("wt-plus").onclick = ()=>step(2.5);
 document.getElementById("wt-minus").onclick = ()=>step(-2.5);
 document.getElementById("wt-weight").addEventListener("input", commitW);
 document.getElementById("wt-reps").addEventListener("input", commitW);
+
+/* ---------- exercise picker ---------- */
+const GRP_LBL = { push:"Push", pull:"Pull", legs:"Πόδια / Κορμός" };
+const pickBackdrop = document.getElementById("pickBackdrop");
+let pickDay = null;
+
+function openPicker(d){
+  pickDay = d;
+  document.getElementById("pick-eb").textContent = d.dow+" · "+d.ttl;
+  const allow = (ALLOWED[d.type]||[]).map(g=>GRP_LBL[g]).join(" + ");
+  document.getElementById("pick-note").innerHTML =
+    `Μόνο ασκήσεις που ταιριάζουν σε αυτή τη μέρα (<b>${allow}</b>). Ό,τι υπάρχει ήδη δεν εμφανίζεται.`;
+  renderPickList();
+  pickBackdrop.classList.add("show");
+  document.body.style.overflow="hidden";
+  document.getElementById("pick-close").focus();
+}
+function renderPickList(){
+  const wrap = document.getElementById("pick-list");
+  const cands = candidates(pickDay);
+  if(cands.length===0){
+    wrap.innerHTML = `<div class="pick-empty">Έχεις προσθέσει ό,τι υπάρχει διαθέσιμο για αυτή τη μέρα 💪</div>`;
+    return;
+  }
+  wrap.innerHTML = "";
+  cands.forEach(e=>{
+    const row = document.createElement("div");
+    row.className = "pick-row";
+    const tags = e.muscles.slice(0,3).map(m=>`<span class="tag">${m}</span>`).join("");
+    row.innerHTML = `
+      <div class="pick-mid">
+        <div class="pick-name">${e.name}</div>
+        <div class="tags">${tags}</div>
+      </div>
+      <button class="pick-add" aria-label="Πρόσθεσε ${e.name}">+</button>`;
+    row.querySelector(".pick-add").onclick = ()=>{ addExercise(pickDay, e.id); renderPickList(); };
+    wrap.appendChild(row);
+  });
+}
+function closePicker(){
+  pickBackdrop.classList.remove("show");
+  document.body.style.overflow="";
+}
+document.getElementById("pick-close").onclick = closePicker;
+pickBackdrop.onclick = (ev)=>{ if(ev.target===pickBackdrop) closePicker(); };
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"&&pickBackdrop.classList.contains("show")) closePicker(); });
 
 /* ---------- mode toggle ---------- */
 document.getElementById("toggle").addEventListener("click", ev=>{
