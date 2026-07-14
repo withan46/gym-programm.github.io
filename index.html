@@ -78,6 +78,60 @@
   .toggle button.on{background:var(--text);color:#12141a;}
   .toggle button:not(.on):hover{color:var(--text);}
 
+  .tb-right{display:flex;align-items:center;gap:10px;flex:none;flex-wrap:wrap;justify-content:flex-end;}
+  .profile-pill{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 12px;
+    color:var(--text);font-family:'Manrope';font-weight:700;font-size:13px;transition:.16s;max-width:190px;
+  }
+  .profile-pill:hover{border-color:var(--accent);}
+  .profile-pill svg{color:var(--accent);flex:none;}
+  .profile-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .profile-pill .caret{color:var(--muted);font-size:11px;flex:none;}
+
+  /* profiles manager */
+  .prof-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+  .prof-row{
+    display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:12px;padding:8px 10px 8px 6px;
+  }
+  .prof-row.active{border-color:var(--accent);background:var(--surface2);}
+  .prof-pick{
+    flex:1;min-width:0;text-align:left;cursor:pointer;background:none;border:none;color:var(--text);
+    font-family:'Oswald',sans-serif;font-weight:500;font-size:16px;letter-spacing:.01em;padding:8px 10px;
+    border-radius:8px;transition:.14s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .prof-pick:hover{background:var(--bg);}
+  .prof-cur{font-family:'Manrope';font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);border-radius:5px;padding:2px 6px;margin-left:8px;vertical-align:middle;}
+  .prof-acts{display:flex;gap:4px;flex:none;}
+  .prof-acts button{
+    width:34px;height:34px;border-radius:9px;cursor:pointer;background:var(--bg);border:1px solid var(--line);
+    color:var(--muted);font-size:15px;line-height:1;transition:.14s;
+  }
+  .prof-acts button:hover{color:var(--text);border-color:var(--accent);}
+  .prof-acts button[data-a="del"]:hover{color:#ff6b5b;border-color:color-mix(in srgb,#ff6b5b 45%,transparent);}
+  .prof-acts button[data-a="del"].arm{color:#12141a;background:#ff6b5b;border-color:#ff6b5b;font-size:11px;font-weight:800;width:auto;padding:0 10px;font-family:'Manrope';}
+  .prof-acts button:disabled{opacity:.35;cursor:not-allowed;}
+  .prof-rename{
+    flex:1;min-width:0;height:40px;background:var(--bg);border:1px solid var(--accent);border-radius:9px;
+    color:var(--text);font-family:'Oswald',sans-serif;font-size:16px;padding:0 12px;
+  }
+  .prof-rename:focus{outline:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent);}
+  .prof-save{flex:none;height:40px;padding:0 14px;border-radius:9px;cursor:pointer;background:var(--accent);color:#12141a;
+    border:none;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;}
+  .prof-new{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:16px;}
+  .prof-new input{
+    flex:1;min-width:0;height:44px;background:var(--bg);border:1px solid var(--line);border-radius:11px;
+    color:var(--text);font-family:'Manrope';font-size:14px;padding:0 14px;transition:.15s;
+  }
+  .prof-new input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 28%,transparent);}
+  .prof-new button{
+    flex:none;height:44px;padding:0 16px;border-radius:11px;cursor:pointer;background:var(--text);color:#12141a;
+    border:none;font-family:'Oswald',sans-serif;font-weight:600;font-size:14px;letter-spacing:.03em;transition:.15s;
+  }
+  .prof-new button:hover{filter:brightness(.94);}
+
   /* ---------- Week rail ---------- */
   .wrap{max-width:960px;margin:0 auto;padding:clamp(18px,3vw,32px) clamp(16px,4vw,40px) 80px;}
   .rail{
@@ -375,9 +429,16 @@
       <h1>Upper / Lower Split</h1>
     </div>
   </div>
-  <div class="toggle" id="toggle">
-    <button data-mode="four" class="on">4 ΜΕΡΕΣ</button>
-    <button data-mode="five">5 ΜΕΡΕΣ</button>
+  <div class="tb-right">
+    <button class="profile-pill" id="profileBtn" aria-label="Προφίλ">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      <span class="profile-name" id="profileName">Προφίλ</span>
+      <span class="caret">▾</span>
+    </button>
+    <div class="toggle" id="toggle">
+      <button data-mode="four" class="on">4 ΜΕΡΕΣ</button>
+      <button data-mode="five">5 ΜΕΡΕΣ</button>
+    </div>
   </div>
 </div>
 
@@ -462,6 +523,26 @@
     <div class="pick-body">
       <div class="pick-note" id="pick-note"></div>
       <div class="pick-list" id="pick-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="backdrop" id="profBackdrop">
+  <div class="modal pickmodal" role="dialog" aria-modal="true" aria-labelledby="prof-title">
+    <div class="m-top">
+      <div>
+        <div class="eb">Οι ρυθμίσεις σου</div>
+        <h3 id="prof-title">Προφίλ</h3>
+      </div>
+      <button class="m-close" id="prof-close" aria-label="Κλείσιμο">✕</button>
+    </div>
+    <div class="pick-body">
+      <div class="pick-note">Κάθε προφίλ κρατά ξεχωριστά τις ασκήσεις που πρόσθεσες, τα βάρη σου και την επιλογή 4/5 ημερών.</div>
+      <div class="prof-list" id="prof-list"></div>
+      <div class="prof-new">
+        <input id="prof-new-name" placeholder="Όνομα νέου προφίλ…" maxlength="40">
+        <button id="prof-new-btn">+ Δημιουργία</button>
+      </div>
     </div>
   </div>
 </div>
@@ -605,23 +686,42 @@ const GIFS = {
 };
 Object.keys(GIFS).forEach(k=>{ if(E[k]) E[k].gif = "gifs/"+GIFS[k]+".gif"; });
 
-/* ---------- weight tracking (saved in your browser) ---------- */
-const WKEY = "gymweights:v1";
-function loadW(){ try{ return JSON.parse(localStorage.getItem(WKEY)) || {}; }catch(e){ return {}; } }
-function saveW(){ try{ localStorage.setItem(WKEY, JSON.stringify(WEIGHTS)); }catch(e){} }
-let WEIGHTS = loadW();
+/* ---------- profiles + saved data (in your browser) ---------- */
+const PKEY = "gymprofiles:v1";
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtDate(ts){ try{ return new Date(ts).toLocaleDateString("el-GR",{day:"2-digit",month:"2-digit",year:"2-digit"}); }catch(e){ return ""; } }
+function saveStore(){ try{ localStorage.setItem(PKEY, JSON.stringify(STORE)); }catch(e){} }
+function loadStore(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(PKEY));
+    if(raw && raw.profiles && raw.active && STORE_ok(raw)) return raw;
+  }catch(e){}
+  // migrate any older single-state data into a first profile
+  let ow={}, oa={};
+  try{ ow = JSON.parse(localStorage.getItem("gymweights:v1")) || {}; }catch(e){}
+  try{ oa = JSON.parse(localStorage.getItem("gymadded:v1")) || {}; }catch(e){}
+  const id = "p"+Date.now();
+  return { active:id, profiles:{ [id]:{ name:"Πρόγραμμα 1", mode:"four", weights:ow, added:oa } } };
+}
+function STORE_ok(raw){ return raw.profiles[raw.active] != null; }
+
+let STORE = loadStore();
+let WEIGHTS = {}, ADDED = {}, mode = "four";
+function useActive(){
+  const p = STORE.profiles[STORE.active];
+  WEIGHTS = p.weights || (p.weights={});
+  ADDED   = p.added   || (p.added={});
+  mode    = p.mode    || "four";
+}
+useActive();
+function saveW(){ saveStore(); }
+function saveA(){ saveStore(); }
+
 function wBadge(e){
   const r = WEIGHTS[e.name];
   if(!r || r.w==null || r.w==="") return "";
   return `<span class="wbadge">🏋 ${r.w} kg${(r.reps!=null&&r.reps!=="")?` × ${r.reps}`:""}</span>`;
 }
-
-/* ---------- custom exercises added per day (saved in your browser) ---------- */
-const AKEY = "gymadded:v1";
-function loadA(){ try{ return JSON.parse(localStorage.getItem(AKEY)) || {}; }catch(e){ return {}; } }
-function saveA(){ try{ localStorage.setItem(AKEY, JSON.stringify(ADDED)); }catch(e){} }
-let ADDED = loadA();
 
 const ALL = Object.values(E);
 const LEG_M  = ["Τετρακέφαλα","Οπ. μηριαία","Γλουτοί","Γάμπες","Κοιλιακοί","Μέση"];
@@ -743,7 +843,6 @@ function missingGif(path, query){
 }
 
 /* ---------- state & render ---------- */
-let mode = "four";
 let dayIndex = 0;
 const prog = () => mode==="four" ? FOUR : FIVE;
 const todayJs = new Date().getDay();
@@ -964,17 +1063,135 @@ pickBackdrop.onclick = (ev)=>{ if(ev.target===pickBackdrop) closePicker(); };
 document.addEventListener("keydown", e=>{ if(e.key==="Escape"&&pickBackdrop.classList.contains("show")) closePicker(); });
 
 /* ---------- mode toggle ---------- */
+function syncModeToggle(){
+  document.querySelectorAll("#toggle button").forEach(b=>b.classList.toggle("on", b.dataset.mode===mode));
+}
 document.getElementById("toggle").addEventListener("click", ev=>{
   const btn = ev.target.closest("button"); if(!btn) return;
   mode = btn.dataset.mode;
-  document.querySelectorAll("#toggle button").forEach(b=>b.classList.toggle("on",b===btn));
+  STORE.profiles[STORE.active].mode = mode;
+  saveStore();
+  syncModeToggle();
   const t = pickToday();
   dayIndex = t>=0 ? t : 0;
   renderAll();
 });
 
+/* ---------- profiles ---------- */
+const profBackdrop = document.getElementById("profBackdrop");
+let renamingId = null;
+let armedDelete = null;
+
+function renderProfilePill(){
+  document.getElementById("profileName").textContent = STORE.profiles[STORE.active].name;
+}
+function switchToActiveProfile(){
+  useActive();
+  syncModeToggle();
+  const t = pickToday();
+  dayIndex = t>=0 ? t : 0;
+  renderAll();
+  renderProfilePill();
+}
+function switchProfile(id){
+  if(!STORE.profiles[id] || id===STORE.active){ closeProfiles(); return; }
+  STORE.active = id; saveStore();
+  switchToActiveProfile();
+  closeProfiles();
+}
+function newProfile(name){
+  const id = "p"+Date.now();
+  const n = (name||"").trim() || ("Προφίλ "+(Object.keys(STORE.profiles).length+1));
+  STORE.profiles[id] = { name:n, mode:"four", weights:{}, added:{} };
+  STORE.active = id; saveStore();
+  switchToActiveProfile(); renderProfiles();
+}
+function duplicateProfile(id){
+  const src = STORE.profiles[id]; if(!src) return;
+  const nid = "p"+Date.now();
+  STORE.profiles[nid] = {
+    name: src.name+" (αντίγραφο)", mode: src.mode,
+    weights: JSON.parse(JSON.stringify(src.weights||{})),
+    added:   JSON.parse(JSON.stringify(src.added||{}))
+  };
+  STORE.active = nid; saveStore();
+  switchToActiveProfile(); renderProfiles();
+}
+function renameProfile(id, name){
+  const n = (name||"").trim();
+  if(n) STORE.profiles[id].name = n;
+  renamingId = null; saveStore();
+  renderProfilePill(); renderProfiles();
+}
+function deleteProfile(id){
+  if(Object.keys(STORE.profiles).length<=1) return;
+  delete STORE.profiles[id];
+  if(STORE.active===id){ STORE.active = Object.keys(STORE.profiles)[0]; switchToActiveProfile(); }
+  saveStore(); renderProfiles();
+}
+function renderProfiles(){
+  const wrap = document.getElementById("prof-list");
+  wrap.innerHTML = "";
+  const ids = Object.keys(STORE.profiles);
+  ids.forEach(id=>{
+    const p = STORE.profiles[id];
+    const row = document.createElement("div");
+    row.className = "prof-row"+(id===STORE.active?" active":"");
+    if(renamingId===id){
+      row.innerHTML = `<input class="prof-rename" value="${esc(p.name)}" maxlength="40"><button class="prof-save">OK</button>`;
+      const inp = row.querySelector(".prof-rename");
+      const save = ()=>renameProfile(id, inp.value);
+      row.querySelector(".prof-save").onclick = save;
+      inp.addEventListener("keydown", e=>{ if(e.key==="Enter") save(); if(e.key==="Escape"){ renamingId=null; renderProfiles(); } });
+      wrap.appendChild(row);
+      setTimeout(()=>{ inp.focus(); inp.select(); },0);
+      return;
+    }
+    const armed = armedDelete===id;
+    row.innerHTML = `
+      <button class="prof-pick">${esc(p.name)}${id===STORE.active?' <span class="prof-cur">τρέχον</span>':''}</button>
+      <div class="prof-acts">
+        <button data-a="dup" title="Διπλότυπο">⧉</button>
+        <button data-a="ren" title="Μετονομασία">✎</button>
+        <button data-a="del" title="Διαγραφή" class="${armed?'arm':''}" ${ids.length<=1?'disabled':''}>${armed?'Σίγουρα;':'🗑'}</button>
+      </div>`;
+    row.querySelector(".prof-pick").onclick = ()=>switchProfile(id);
+    row.querySelector('[data-a="dup"]').onclick = ()=>duplicateProfile(id);
+    row.querySelector('[data-a="ren"]').onclick = ()=>{ renamingId=id; armedDelete=null; renderProfiles(); };
+    const del = row.querySelector('[data-a="del"]');
+    if(del && !del.disabled){
+      del.onclick = ()=>{ if(armed){ armedDelete=null; deleteProfile(id); } else { armedDelete=id; renderProfiles(); } };
+    }
+    wrap.appendChild(row);
+  });
+}
+function openProfiles(){
+  renamingId=null; armedDelete=null;
+  renderProfiles();
+  document.getElementById("prof-new-name").value="";
+  profBackdrop.classList.add("show");
+  document.body.style.overflow="hidden";
+}
+function closeProfiles(){
+  profBackdrop.classList.remove("show");
+  document.body.style.overflow="";
+}
+document.getElementById("profileBtn").onclick = openProfiles;
+document.getElementById("prof-close").onclick = closeProfiles;
+profBackdrop.onclick = (ev)=>{ if(ev.target===profBackdrop) closeProfiles(); };
+document.addEventListener("keydown", e=>{ if(e.key==="Escape"&&profBackdrop.classList.contains("show")) closeProfiles(); });
+document.getElementById("prof-new-btn").onclick = ()=>{
+  const el = document.getElementById("prof-new-name");
+  newProfile(el.value); el.value="";
+};
+document.getElementById("prof-new-name").addEventListener("keydown", e=>{
+  if(e.key==="Enter"){ const el=e.target; newProfile(el.value); el.value=""; }
+});
+
 /* ---------- init ---------- */
 document.getElementById("notes").innerHTML = NOTES;
+syncModeToggle();
+renderProfilePill();
 const t = pickToday();
 dayIndex = t>=0 ? t : 0;
 renderAll();
