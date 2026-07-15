@@ -26,6 +26,8 @@
     --push:#ff6b5b;
     --pull:#8b7cf6;
     --legs:#a3e635;
+    --fullA:#f472b6;
+    --fullB:#38bdf8;
 
     --accent:var(--upper);
     --radius:16px;
@@ -277,6 +279,30 @@
   .viewswitch button:not(.on):hover{color:var(--text);}
   .vs-ic{font-size:16px;}
   body[data-view="diet"] #toggle{display:none;}
+  body[data-prog="eleni"] #toggle{display:none;}
+
+  /* warmup / cooldown */
+  .warmbox{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;margin-bottom:14px;}
+  .warmbox.cool{margin-top:14px;margin-bottom:0;}
+  .warmbox summary{
+    list-style:none;cursor:pointer;padding:13px 16px;
+    font-family:'Oswald',sans-serif;font-weight:500;letter-spacing:.05em;font-size:14.5px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .warmbox summary::-webkit-details-marker{display:none;}
+  .warmbox summary .plus{color:var(--muted);transition:.2s;}
+  .warmbox[open] summary .plus{transform:rotate(45deg);color:var(--text);}
+  .warmbody{padding:0 16px 14px;}
+  .warmrow{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:8px 0;border-top:1px solid var(--line-soft);font-size:14px;color:var(--text);
+  }
+  .warmrow b{color:var(--accent);font-family:'Oswald',sans-serif;font-weight:500;white-space:nowrap;}
+  .warmnote{font-size:13.5px;color:var(--muted);line-height:1.55;padding-top:8px;border-top:1px solid var(--line-soft);}
+  .prof-prog{
+    display:block;font-family:'Manrope';font-size:10.5px;font-weight:700;color:var(--muted2);
+    letter-spacing:.02em;margin-top:2px;text-transform:none;
+  }
 
   /* ---------- nutrition ---------- */
   .creatine-tag{
@@ -545,7 +571,7 @@
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6.5 8v8M17.5 8v8M4 9.5v5M20 9.5v5M6.5 12h11"/></svg>
     <div>
       <div class="eyebrow">Το πρόγραμμά μου</div>
-      <h1>Upper / Lower Split</h1>
+      <h1 id="progTitle">Upper / Lower Split</h1>
     </div>
   </div>
   <div class="tb-right">
@@ -571,7 +597,9 @@
     <div class="rail" id="rail"></div>
     <div id="rest"></div>
     <div class="dayhead" id="dayhead"></div>
+    <div id="warmup"></div>
     <div class="list" id="list"></div>
+    <div id="cooldown"></div>
 
     <details class="notes">
       <summary>Σχετικά με το πρόγραμμα <span class="plus">＋</span></summary>
@@ -582,10 +610,10 @@
   <div id="view-diet" style="display:none">
     <div class="dayhead">
       <div>
-        <div class="idx"><span class="dot"></span>Διατροφή · Όγκος</div>
+        <div class="idx"><span class="dot"></span><span id="diet-eb">Διατροφή</span></div>
         <h2>Το φαγητό μου</h2>
       </div>
-      <div class="creatine-tag">💊 5g κρεατίνη / ημέρα</div>
+      <div class="creatine-tag" id="diet-tag"></div>
     </div>
 
     <div class="diet-summary">
@@ -825,6 +853,43 @@ Object.assign(E, {
     ["Ελεγχόμενο ανέβασμα, χωρίς αιώρηση.","Σφίξε τους κάτω κοιλιακούς.","Αργό κατέβασμα."])
 });
 
+/* ---------- Ελένη · home program exercises ---------- */
+Object.assign(E, {
+  eChairSq:  ex("Κάθισμα σε ένα πόδι σε καρέκλα","3–4 × 8–10 /πόδι",["Τετρακέφαλα","Γλουτοί"],"single leg squat to chair",
+    ["Ελεγχόμενο κατέβασμα 3΄΄, ακουμπάς ελαφρά, σηκώνεσαι.","Γόνατο στη γραμμή του ποδιού.","Παύση 1΄΄ κάτω — χωρίς να κάθεσαι εντελώς."]),
+  eSlRdl:    ex("Ρουμανική άρση στο ένα πόδι (2 κιλά)","3 × 10–12 /πόδι",["Οπ. μηριαία","Γλουτοί","Μέση"],"single leg romanian deadlift dumbbell",
+    ["Ίσια πλάτη σε όλη την κίνηση.","Σπρώξε τον γοφό πίσω — νιώθεις τον οπίσθιο μηριαίο.","Αργά κάτω (3΄΄), σταθερά πάνω."]),
+  ePushup:   ex("Κάμψεις (push-ups)","4 × 8–12",["Στήθος","Ώμοι","Τρικέφαλα"],"push up proper form",
+    ["Παύση 1΄΄ κάτω.","Σώμα σε ίσια γραμμή, κοιλιακοί σφιχτοί.","Αν είναι δύσκολο: κεκλιμένες στον καναπέ."]),
+  eBandRow:  ex("Κωπηλατική με λάστιχο","4 × 12–15",["Πλάτη","Δικέφαλα"],"resistance band seated row",
+    ["Πατάς το λάστιχο στη μέση.","Τραβάς προς την κοιλιά, αγκώνες κοντά.","Σφίξε τις ωμοπλάτες, αργή επιστροφή."]),
+  eBulg:     ex("Bulgarian split squat","3 × 10 /πόδι",["Τετρακέφαλα","Γλουτοί"],"bulgarian split squat home form",
+    ["Πίσω πόδι σε καρέκλα, βάρη στα χέρια.","Κατέβα ίσια, 3΄΄ κατέβασμα.","Βάρος στη φτέρνα του μπροστινού ποδιού."]),
+  eOhp:      ex("Πιέσεις ώμων με βάρη","3 × 12–15",["Ώμοι","Τρικέφαλα"],"dumbbell shoulder press form",
+    ["Αργά — 3΄΄ κατέβασμα.","Σφίξε κοιλιακούς, μην υπερεκτείνεις τη μέση.","Πλήρης έκταση πάνω."]),
+  eLatRaise: ex("Πλάγιες άρσεις","3 × 15–20",["Ώμοι"],"dumbbell lateral raise form",
+    ["Ελαφρά λυγισμένοι αγκώνες.","Σήκωσε ως το ύψος των ώμων.","Χωρίς φόρα — αργό κατέβασμα."]),
+  eSidePlank:ex("Πλάγια σανίδα","3 × 30–45΄΄ /πλευρά",["Κοιλιακοί","Μέση"],"side plank proper form",
+    ["Σώμα σε ίσια γραμμή.","Γοφός ψηλά, μην πέφτει.","Σταθερή αναπνοή."]),
+
+  eSlHip:    ex("Hip thrust στο ένα πόδι","3–4 × 12–15 /πόδι",["Γλουτοί","Οπ. μηριαία"],"single leg hip thrust couch",
+    ["Πλάτη στον καναπέ.","2΄΄ παύση στην κορυφή.","Σπρώξε από τη φτέρνα, σφίξε τον γλουτό."]),
+  eLunge:    ex("Προβολές (περπατώντας ή στατικές)","3 × 12 /πόδι",["Τετρακέφαλα","Γλουτοί"],"dumbbell lunges form",
+    ["Με τα βάρη στα χέρια.","Κορμός όρθιος, μεγάλο βήμα.","Γόνατο πάνω από τον αστράγαλο."]),
+  ePullApart:ex("Άνοιγμα λάστιχου (pull-apart / face pull)","4 × 15–20",["Πλάτη","Ώμοι"],"band pull apart face pull",
+    ["Ωμοπλάτες μαζί.","Αγκώνες ψηλά στο face pull.","Ελαφριά τάση, καθαρή εκτέλεση."]),
+  eBandPress:ex("Πιέσεις στήθους με λάστιχο","3 × 12–15",["Στήθος","Τρικέφαλα"],"resistance band chest press",
+    ["Λάστιχο γύρω από την πλάτη.","Σπρώξε μπροστά, σφίξε το στήθος.","Αργή επιστροφή (3΄΄)."]),
+  eSideStep: ex("Πλάγια βήματα με λάστιχο στους αστραγάλους","3 × 15 /πλευρά",["Γλουτοί"],"lateral band walk form",
+    ["Ημι-κάθισμα, τάση σταθερή.","Μικρά ελεγχόμενα βήματα.","Μην κλείνουν τα γόνατα προς τα μέσα."]),
+  eSlCalf:   ex("Ανορθώσεις γάμπας στο ένα πόδι σε σκαλί","3 × 15–20 /πόδι",["Γάμπες"],"single leg calf raise step",
+    ["Πλήρες εύρος — φόρα κάτω.","Παύση 1΄΄ στην κορυφή.","Χωρίς αναπήδηση."]),
+  eArms:     ex("Δικέφαλα + Τρικέφαλα (σούπερ-σετ)","3 × 15",["Δικέφαλα","Τρικέφαλα"],"dumbbell biceps triceps superset",
+    ["2 κιλά, αργό τέμπο.","Χωρίς παύση ανάμεσα στις δύο ασκήσεις.","Αγκώνες σταθεροί."]),
+  eDeadbug:  ex("Dead bug ή σανίδα","3 × 40΄΄",["Κοιλιακοί","Μέση"],"dead bug exercise form",
+    ["Μέση κολλητά στο πάτωμα.","Αργές, ελεγχόμενες κινήσεις.","Σταθερή αναπνοή."])
+});
+
 Object.keys(E).forEach(k=> E[k].id = k);
 
 /* ---------- gif filenames (drop matching files into ./gifs/) ---------- */
@@ -846,37 +911,113 @@ const GIFS = {
 };
 Object.keys(GIFS).forEach(k=>{ if(E[k]) E[k].gif = "gifs/"+GIFS[k]+".gif"; });
 
+/* ---------- diet defaults (needed by the profile store below) ---------- */
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function uid(p){ return p+Date.now().toString(36)+Math.floor(Math.random()*1000); }
+const DEFAULT_MEALS = [
+  { id:"m1", time:"07:20", name:"2 φέτες μικρό κέικ", kcal:330 },
+  { id:"m2", time:"10:30", name:"Μπανάνα", kcal:105 },
+  { id:"m3", time:"13:00", name:"Κυρίως γεύμα", note:"Συνοδευτικό ρύζι όπου χρειάζεται.", sel:"o31", choose:[
+      { id:"o31", label:"Μακαρόνια με κιμά", kcal:640 },
+      { id:"o32", label:"Κοτόπουλο + ρύζι", kcal:560 },
+      { id:"o33", label:"Γεμιστά", kcal:470 },
+      { id:"o34", label:"Αρακάς + ρύζι", kcal:470 },
+      { id:"o35", label:"Φασολάκια + ρύζι", kcal:420 },
+      { id:"o36", label:"Φακές", kcal:420 }
+    ] },
+  { id:"m4", time:"15:00", name:"80g μιξ ξηρών καρπών", kcal:480 },
+  { id:"m5", time:"18:00", name:"300ml γάλα + μπανάνα + 5g κρεατίνη", note:"Μετά την προπόνηση.", kcal:290 },
+  { id:"m6", time:"21:00", name:"Βραδινό", sel:"o61", choose:[
+      { id:"o61", label:"Πιάτο μακαρόνια", kcal:550 },
+      { id:"o62", label:"2 τοστ (γκούντα + γαλοπούλα)", kcal:460 }
+    ] }
+];
+const ELENI_MEALS = [
+  { id:"e1", time:"08:00", name:"Πρωινό · 25–35g πρωτεΐνη", note:"π.χ. γιαούρτι + αυγά. Συμπλήρωσε τις θερμίδες σου.", kcal:0 },
+  { id:"e2", time:"13:00", name:"Μεσημεριανό · 25–35g πρωτεΐνη", kcal:0 },
+  { id:"e3", time:"17:00", name:"Σνακ · 20–25g πρωτεΐνη", kcal:0 },
+  { id:"e4", time:"20:30", name:"Βραδινό · 25–35g πρωτεΐνη", note:"Όχι όλη η πρωτεΐνη το βράδυ — μοίρασέ την στη μέρα.", kcal:0 }
+];
+function defaultDiet(program){
+  return {
+    meals: JSON.parse(JSON.stringify(program==="eleni" ? ELENI_MEALS : DEFAULT_MEALS)),
+    goal: program==="eleni" ? 0 : 2800,
+    eaten:{}, eatenDate: todayStr()
+  };
+}
+
 /* ---------- profiles + saved data (in your browser) ---------- */
-const PKEY = "gymprofiles:v1";
+const PKEY = "gymprofiles:v2";
 function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtDate(ts){ try{ return new Date(ts).toLocaleDateString("el-GR",{day:"2-digit",month:"2-digit",year:"2-digit"}); }catch(e){ return ""; } }
 function saveStore(){ try{ localStorage.setItem(PKEY, JSON.stringify(STORE)); }catch(e){} }
+
+function mkProfile(name, program, extra){
+  return Object.assign({ name:name, program:program, mode:"four", weights:{}, added:{}, notes:{}, diet:defaultDiet(program) }, extra||{});
+}
 function loadStore(){
+  // current version
   try{
     const raw = JSON.parse(localStorage.getItem(PKEY));
-    if(raw && raw.profiles && raw.active && STORE_ok(raw)) return raw;
+    if(raw && raw.profiles && raw.profiles[raw.active]) return raw;
   }catch(e){}
-  // migrate any older single-state data into a first profile
-  let ow={}, oa={};
-  try{ ow = JSON.parse(localStorage.getItem("gymweights:v1")) || {}; }catch(e){}
-  try{ oa = JSON.parse(localStorage.getItem("gymadded:v1")) || {}; }catch(e){}
-  const id = "p"+Date.now();
-  return { active:id, profiles:{ [id]:{ name:"Πρόγραμμα 1", mode:"four", weights:ow, added:oa } } };
+
+  // build from older data if present
+  let old=null;
+  try{ old = JSON.parse(localStorage.getItem("gymprofiles:v1")); }catch(e){}
+  let oldDiet=null;
+  try{ oldDiet = JSON.parse(localStorage.getItem("gymdiet:v2")); }catch(e){}
+
+  const profiles = {};
+  let firstId = null;
+  if(old && old.profiles && Object.keys(old.profiles).length){
+    Object.keys(old.profiles).forEach((id,idx)=>{
+      const p = old.profiles[id];
+      p.program = "thanasis";
+      if(!p.notes) p.notes = {};
+      p.diet = (idx===0 && oldDiet && Array.isArray(oldDiet.meals) && oldDiet.meals.length) ? oldDiet : defaultDiet("thanasis");
+      if(idx===0) p.name = "Θανάσης";
+      profiles[id] = p;
+      if(idx===0) firstId = id;
+    });
+  } else {
+    // fresh install (or very old single-state data)
+    let ow={}, oa={};
+    try{ ow = JSON.parse(localStorage.getItem("gymweights:v1")) || {}; }catch(e){}
+    try{ oa = JSON.parse(localStorage.getItem("gymadded:v1")) || {}; }catch(e){}
+    const id = "p"+Date.now();
+    profiles[id] = mkProfile("Θανάσης","thanasis",{ weights:ow, added:oa,
+      diet:(oldDiet && Array.isArray(oldDiet.meals) && oldDiet.meals.length) ? oldDiet : defaultDiet("thanasis") });
+    firstId = id;
+  }
+  // always add Ελένη if she isn't there
+  if(!Object.values(profiles).some(p=>p.program==="eleni")){
+    profiles["pel"+Date.now()] = mkProfile("Ελένη","eleni");
+  }
+  return { active:firstId, profiles:profiles };
 }
-function STORE_ok(raw){ return raw.profiles[raw.active] != null; }
 
 let STORE = loadStore();
-let WEIGHTS = {}, ADDED = {}, COMMENTS = {}, mode = "four";
+let WEIGHTS = {}, ADDED = {}, COMMENTS = {}, DIET = null, mode = "four";
 function useActive(){
   const p = STORE.profiles[STORE.active];
+  if(!p.program) p.program = "thanasis";
   WEIGHTS  = p.weights || (p.weights={});
   ADDED    = p.added   || (p.added={});
   COMMENTS = p.notes   || (p.notes={});
+  if(!p.diet) p.diet = defaultDiet(p.program);
+  DIET = p.diet;
+  if(!Array.isArray(DIET.meals)) DIET.meals = defaultDiet(p.program).meals;
+  if(DIET.goal==null) DIET.goal = 0;
+  if(!DIET.eaten) DIET.eaten = {};
+  if(DIET.eatenDate !== todayStr()){ DIET.eaten = {}; DIET.eatenDate = todayStr(); }
   mode     = p.mode    || "four";
 }
 useActive();
+function P(){ return STORE.profiles[STORE.active].program || "thanasis"; }
 function saveW(){ saveStore(); }
 function saveA(){ saveStore(); }
+function saveDiet(){ saveStore(); }
 
 function wBadge(e){
   const r = WEIGHTS[e.name];
@@ -892,13 +1033,13 @@ function noteBadge(e){
 const ALL = Object.values(E);
 const LEG_M  = ["Τετρακέφαλα","Οπ. μηριαία","Γλουτοί","Γάμπες","Κοιλιακοί","Μέση"];
 const PULL_M = ["Πλάτη","Δικέφαλα","Πήχεις"];
-const ALLOWED = { upper:["push","pull"], lower:["legs"], push:["push"], pull:["pull"], legs:["legs"] };
+const ALLOWED = { upper:["push","pull"], lower:["legs"], push:["push"], pull:["pull"], legs:["legs"], fullA:["push","pull","legs"], fullB:["push","pull","legs"] };
 function groupOf(e){
   if(e.muscles.some(m=>LEG_M.includes(m)))  return "legs";
   if(e.muscles.some(m=>PULL_M.includes(m))) return "pull";
   return "push";
 }
-function dayId(d){ return mode+"|"+d.ttl; }
+function dayId(d){ return P()==="thanasis" ? mode+"|"+d.ttl : P()+"|"+d.ttl; }
 function isBlankProfile(){ return !!STORE.profiles[STORE.active].blank; }
 function baseList(d){ return isBlankProfile() ? [] : d.list; }
 function addedIds(d){ return ADDED[dayId(d)] || []; }
@@ -938,7 +1079,23 @@ const FIVE = [
   {dow:"Παρασκευή",ttl:"Lower",type:"lower", jsDay:5, list:[E.deadlift,E.bulgarian,E.hip,E.legext,E.calf]}
 ];
 
-const TYPE_C = {upper:"var(--upper)",lower:"var(--lower)",push:"var(--push)",pull:"var(--pull)",legs:"var(--legs)"};
+const ELENI = [
+  {dow:"Εναλλάξ · Δευ / Τετ / Παρ", short:"ΣΠΙΤΙ", ttl:"Μέρα Α", type:"fullA", jsDay:null,
+   list:[E.eChairSq,E.eSlRdl,E.ePushup,E.eBandRow,E.eBulg,E.eOhp,E.eLatRaise,E.eSidePlank]},
+  {dow:"Εναλλάξ · Δευ / Τετ / Παρ", short:"ΣΠΙΤΙ", ttl:"Μέρα Β", type:"fullB", jsDay:null,
+   list:[E.eSlHip,E.eLunge,E.ePullApart,E.eBandPress,E.eSideStep,E.eSlCalf,E.eArms,E.eDeadbug]}
+];
+
+const WARMUP = [
+  ["Επιτόπιο περπάτημα / jumping jacks","2΄"],
+  ["Κυκλικές κινήσεις ώμων","10 μπρος + 10 πίσω"],
+  ["Γέφυρες γλουτών","15"],
+  ["Γέφυρες με λάστιχο στους αστραγάλους","15"],
+  ["Κάμψεις-εκτάσεις σπονδυλικής (cat-cow)","10"]
+];
+const COOLDOWN = "Διατάσεις σε ό,τι δουλέψαμε — τετρακέφαλοι, οπίσθιοι μηριαίοι, γλουτοί, στήθος, ώμοι. 20–30΄΄ η καθεμία.";
+
+const TYPE_C = {upper:"var(--upper)",lower:"var(--lower)",push:"var(--push)",pull:"var(--pull)",legs:"var(--legs)",fullA:"var(--fullA)",fullB:"var(--fullB)"};
 const DOW_SHORT = {"Δευτέρα":"ΔΕΥ","Τρίτη":"ΤΡΙ","Τετάρτη":"ΤΕΤ","Πέμπτη":"ΠΕΜ","Παρασκευή":"ΠΑΡ"};
 
 const NOTES = `
@@ -947,6 +1104,33 @@ const NOTES = `
 <p>Αν κάποια εβδομάδα βγουν μόνο 4 μέρες, κόβεις απλώς την τελευταία — δεν χαλάει τίποτα.</p>
 <p style="color:var(--muted2);font-size:12.5px;margin-top:14px">Το πρόγραμμα «Μύες στόχος» και τα σημεία εκτέλεσης είναι γενικές οδηγίες. Για βάρη/τεχνική προσαρμοσμένα σε σένα, καλό είναι μια αξιολόγηση από προπονητή.</p>
 `;
+
+const ELENI_NOTES = `
+<p><strong>Εξοπλισμός:</strong> 2 αλτήρες × 2 κιλά · μακρύ λάστιχο · λάστιχο αστραγάλων · καρέκλα / καναπές / σκαλί<br>
+<strong>Συχνότητα:</strong> 3 μέρες/εβδομάδα (π.χ. Δευτέρα – Τετάρτη – Παρασκευή), <strong>εναλλάξ Μέρα Α και Μέρα Β</strong> · ~60 λεπτά</p>
+
+<p><strong>Οι 3 αρχές.</strong> Με 2 κιλά ανά χέρι, το βάρος από μόνο του δεν αρκεί — το φορτίο έρχεται αλλού:
+<strong>1)</strong> σωματικό βάρος ως βασική αντίσταση, <strong>2)</strong> μονόπλευρες ασκήσεις (ένα πόδι/χέρι τη φορά, άρα διπλάσιο φορτίο),
+<strong>3)</strong> αργό τέμπο + παύσεις (3΄΄ κατέβασμα, 1΄΄ παύση κάτω) που κάνουν τα ελαφριά κιλά να μετράνε σαν πολύ περισσότερα.</p>
+
+<p><strong>Ένταση:</strong> RPE 8–9 στα τελευταία σετ — να μένουν 1–2 επαναλήψεις «στην τράπεζα». <strong>Ξεκούραση:</strong> 60–90΄΄ μεταξύ σετ.</p>
+
+<p><strong>Πώς προχωράει η πρόοδος.</strong> Όταν φτάνεις <strong>άνετα</strong> το πάνω όριο των επαναλήψεων, ανέβασε δυσκολία με αυτή τη σειρά:
+<strong>1)</strong> πιο αργό τέμπο (4΄΄ αντί 3΄΄), <strong>2)</strong> παύση 2΄΄ στο δύσκολο σημείο,
+<strong>3)</strong> πιο δύσκολη παραλλαγή (κεκλιμένες κάμψεις → κανονικές → πόδια ψηλά), <strong>4)</strong> περισσότερα σετ (3 → 4).
+Αυτή είναι η προοδευτική υπερφόρτωση όταν δεν μπορείς να προσθέσεις κιλά. Κράτα σημειώσεις — χωρίς αυτές δεν ξέρεις αν προχωράς.</p>
+
+<p><strong>Διατροφή:</strong> το κλειδί δεν είναι το έλλειμμα, είναι η <strong>πρωτεΐνη</strong> (90–100γρ/ημέρα, 25–35γρ ανά γεύμα, 3–4 γεύματα — όχι όλα το βράδυ).
+Σε λεπτό σώμα η «σύσφιξη» έρχεται από μυ, όχι από απώλεια λίπους· δίαιτα σε αυτή τη φάση σημαίνει απώλεια μυός. Θερμίδες: συντήρηση ή ελαφρώς πάνω. Δες την καρτέλα «Διατροφή».</p>
+
+<p><strong>Προσδοκίες:</strong> ορατή διαφορά σε 3–4 μήνες, όχι 4 εβδομάδες. Αν κάποια μέρα το σώμα νιώθει «άδειο», μια μέρα παραπάνω ξεκούραση είναι επένδυση.
+Το πιο σημαντικό είναι η συνέπεια: ένα μέτριο πρόγραμμα που το κάνεις 3 μήνες νικάει το τέλειο που το κάνεις 3 εβδομάδες.</p>
+
+<p style="color:var(--muted2);font-size:12.5px;margin-top:14px">Οστά: βιταμίνη D και ασβέστιο αξίζουν προσοχή σε αυτή την ηλικία — μια μέτρηση βιταμίνης D είναι απλή εξέταση και αξίζει μια κουβέντα με τον γιατρό. Τα παραπάνω είναι γενικές οδηγίες, όχι ιατρική συμβουλή.</p>
+`;
+
+const PROG_NOTES = { thanasis: NOTES, eleni: ELENI_NOTES };
+const PROG_TITLE = { thanasis: "Upper / Lower Split", eleni: "Ενδυνάμωση στο σπίτι" };
 
 /* ---------- silhouette markup ---------- */
 function silhouette(side){
@@ -1012,7 +1196,7 @@ function missingGif(path, query){
 
 /* ---------- state & render ---------- */
 let dayIndex = 0;
-const prog = () => mode==="four" ? FOUR : FIVE;
+const prog = () => P()==="eleni" ? ELENI : (mode==="four" ? FOUR : FIVE);
 const todayJs = new Date().getDay();
 
 function pickToday(){
@@ -1030,13 +1214,17 @@ function renderRail(){
     const b = document.createElement("button");
     b.className = "daytab"+(i===dayIndex?" on":"");
     b.style.setProperty("--c", TYPE_C[d.type]);
-    b.innerHTML = `<div class="dow">${DOW_SHORT[d.dow]||d.dow}</div>
+    b.innerHTML = `<div class="dow">${d.short || DOW_SHORT[d.dow] || d.dow}</div>
       <div class="dttl">${d.ttl}</div>
-      ${d.jsDay===todayJs?'<span class="today-badge">Σήμερα</span>':''}`;
+      ${(d.jsDay!=null && d.jsDay===todayJs)?'<span class="today-badge">Σήμερα</span>':''}`;
     b.onclick = ()=>{dayIndex=i;renderAll();};
     rail.appendChild(b);
   });
-  // rest-day note
+  // rest-day / schedule note
+  if(P()==="eleni"){
+    rest.innerHTML = `<div class="restnote">🏠 <b>3 μέρες/εβδομάδα</b> (π.χ. Δευτέρα – Τετάρτη – Παρασκευή), <b>εναλλάξ Μέρα Α → Μέρα Β → Μέρα Α…</b> · ~60΄ με ζέσταμα και χαλάρωμα.</div>`;
+    return;
+  }
   const isTraining = arr.some(d=>d.jsDay===todayJs);
   rest.innerHTML = isTraining ? "" :
     `<div class="restnote">💤 <b>Σήμερα ξεκούραση.</b> Δεν έχεις προπόνηση προγραμματισμένη — δες όποια μέρα θέλεις παρακάτω.</div>`;
@@ -1045,6 +1233,22 @@ function renderRail(){
 function renderDay(){
   const d = prog()[dayIndex];
   document.documentElement.style.setProperty("--accent", TYPE_C[d.type]);
+  document.body.dataset.prog = P();
+  document.getElementById("progTitle").textContent = PROG_TITLE[P()] || "";
+  document.getElementById("notes").innerHTML = PROG_NOTES[P()] || "";
+
+  const wu = document.getElementById("warmup"), cd = document.getElementById("cooldown");
+  if(P()==="eleni"){
+    wu.innerHTML = `<details class="warmbox" open>
+      <summary>🔥 Ζέσταμα (6–8΄) <span class="plus">＋</span></summary>
+      <div class="warmbody">${WARMUP.map(w=>`<div class="warmrow"><span>${w[0]}</span><b>${w[1]}</b></div>`).join("")}</div>
+    </details>`;
+    cd.innerHTML = `<details class="warmbox cool">
+      <summary>🧘 Χαλάρωμα (5΄) <span class="plus">＋</span></summary>
+      <div class="warmbody"><div class="warmnote">${COOLDOWN}</div></div>
+    </details>`;
+  } else { wu.innerHTML = ""; cd.innerHTML = ""; }
+
   const items = fullList(d);
   const added = addedIds(d);
   const head = document.getElementById("dayhead");
@@ -1278,6 +1482,7 @@ function switchToActiveProfile(){
   dayIndex = t>=0 ? t : 0;
   renderAll();
   renderProfilePill();
+  if(document.body.dataset.view==="diet") renderDiet();
 }
 function switchProfile(id){
   if(!STORE.profiles[id] || id===STORE.active){ closeProfiles(); return; }
@@ -1288,7 +1493,8 @@ function switchProfile(id){
 function newProfile(name){
   const id = "p"+Date.now();
   const n = (name||"").trim() || ("Προφίλ "+(Object.keys(STORE.profiles).length+1));
-  STORE.profiles[id] = { name:n, mode:"four", weights:{}, added:{}, notes:{}, blank:true };
+  STORE.profiles[id] = { name:n, program:"thanasis", mode:"four", weights:{}, added:{}, notes:{},
+                         diet:{ meals:[], goal:0, eaten:{}, eatenDate:todayStr() }, blank:true };
   STORE.active = id; saveStore();
   switchToActiveProfile(); renderProfiles();
 }
@@ -1296,10 +1502,11 @@ function duplicateProfile(id){
   const src = STORE.profiles[id]; if(!src) return;
   const nid = "p"+Date.now();
   STORE.profiles[nid] = {
-    name: src.name+" (αντίγραφο)", mode: src.mode, blank: !!src.blank,
+    name: src.name+" (αντίγραφο)", mode: src.mode, blank: !!src.blank, program: src.program||"thanasis",
     weights: JSON.parse(JSON.stringify(src.weights||{})),
     added:   JSON.parse(JSON.stringify(src.added||{})),
-    notes:   JSON.parse(JSON.stringify(src.notes||{}))
+    notes:   JSON.parse(JSON.stringify(src.notes||{})),
+    diet:    JSON.parse(JSON.stringify(src.diet||defaultDiet(src.program||"thanasis")))
   };
   STORE.active = nid; saveStore();
   switchToActiveProfile(); renderProfiles();
@@ -1336,7 +1543,7 @@ function renderProfiles(){
     }
     const armed = armedDelete===id;
     row.innerHTML = `
-      <button class="prof-pick">${esc(p.name)}${id===STORE.active?' <span class="prof-cur">τρέχον</span>':''}</button>
+      <button class="prof-pick">${esc(p.name)}<span class="prof-prog">${p.blank?"δικό μου":(PROG_TITLE[p.program||"thanasis"]||"")}</span>${id===STORE.active?' <span class="prof-cur">τρέχον</span>':''}</button>
       <div class="prof-acts">
         <button data-a="dup" title="Διπλότυπο">⧉</button>
         <button data-a="ren" title="Μετονομασία">✎</button>
@@ -1376,40 +1583,12 @@ document.getElementById("prof-new-name").addEventListener("keydown", e=>{
 });
 
 /* ---------- nutrition ---------- */
-const DEFAULT_MEALS = [
-  { id:"m1", time:"07:20", name:"2 φέτες μικρό κέικ", kcal:330 },
-  { id:"m2", time:"10:30", name:"Μπανάνα", kcal:105 },
-  { id:"m3", time:"13:00", name:"Κυρίως γεύμα", note:"Συνοδευτικό ρύζι όπου χρειάζεται.", sel:"o31", choose:[
-      { id:"o31", label:"Μακαρόνια με κιμά", kcal:640 },
-      { id:"o32", label:"Κοτόπουλο + ρύζι", kcal:560 },
-      { id:"o33", label:"Γεμιστά", kcal:470 },
-      { id:"o34", label:"Αρακάς + ρύζι", kcal:470 },
-      { id:"o35", label:"Φασολάκια + ρύζι", kcal:420 },
-      { id:"o36", label:"Φακές", kcal:420 }
-    ] },
-  { id:"m4", time:"15:00", name:"80g μιξ ξηρών καρπών", kcal:480 },
-  { id:"m5", time:"18:00", name:"300ml γάλα + μπανάνα + 5g κρεατίνη", note:"Μετά την προπόνηση.", kcal:290 },
-  { id:"m6", time:"21:00", name:"Βραδινό", sel:"o61", choose:[
-      { id:"o61", label:"Πιάτο μακαρόνια", kcal:550 },
-      { id:"o62", label:"2 τοστ (γκούντα + γαλοπούλα)", kcal:460 }
-    ] }
-];
-const DIET_NOTE = `Όλα εδώ αλλάζουν: πάτα σε ώρα, όνομα ή θερμίδες για να τα διορθώσεις, <b>✕</b> για να σβήσεις, <b>+ Πρόσθεσε γεύμα</b> για νέο. Οι θερμίδες είναι <b>κατά προσέγγιση</b> — προσάρμοσέ τες στη μερίδα σου. Για όγκο: αν το βάρος δεν ανεβαίνει μετά από 2–3 εβδομάδες, ανέβασε ~200–300 kcal. Η κρεατίνη δεν έχει θερμίδες. Για εξατομικευμένο πλάνο, ένας διαιτολόγος βοηθά.`;
-
-const DKEY = "gymdiet:v2";
-function todayStr(){ return new Date().toISOString().slice(0,10); }
-function uid(p){ return p+Date.now().toString(36)+Math.floor(Math.random()*1000); }
-function loadDiet(){
-  let d = {};
-  try{ d = JSON.parse(localStorage.getItem(DKEY)) || {}; }catch(e){}
-  if(!Array.isArray(d.meals) || !d.meals.length) d.meals = JSON.parse(JSON.stringify(DEFAULT_MEALS));
-  if(d.goal==null) d.goal = 2800;
-  if(!d.eaten) d.eaten = {};
-  if(d.eatenDate !== todayStr()){ d.eaten = {}; d.eatenDate = todayStr(); }
-  return d;
-}
-let DIET = loadDiet();
-function saveDiet(){ try{ localStorage.setItem(DKEY, JSON.stringify(DIET)); }catch(e){} }
+const DIET_NOTE = {
+  thanasis: `Όλα εδώ αλλάζουν: πάτα σε ώρα, όνομα ή θερμίδες για να τα διορθώσεις, <b>✕</b> για να σβήσεις, <b>+ Πρόσθεσε γεύμα</b> για νέο. Οι θερμίδες είναι <b>κατά προσέγγιση</b> — προσάρμοσέ τες στη μερίδα σου. Για όγκο: αν το βάρος δεν ανεβαίνει μετά από 2–3 εβδομάδες, ανέβασε ~200–300 kcal. Η κρεατίνη δεν έχει θερμίδες. Για εξατομικευμένο πλάνο, ένας διαιτολόγος βοηθά.`,
+  eleni: `<b>Το κλειδί δεν είναι το έλλειμμα — είναι η πρωτεΐνη:</b> 90–100γρ/ημέρα, μοιρασμένα σε 25–35γρ ανά γεύμα, 3–4 γεύματα (όχι όλα το βράδυ). Μετά τα 50 οι μύες αντιδρούν λιγότερο εύκολα στην πρωτεΐνη, γι' αυτό μετράει η δόση ανά γεύμα. Θερμίδες: <b>συντήρηση ή ελαφρώς πάνω</b> — δίαιτα εδώ σημαίνει απώλεια μυός, όχι πιο σφιχτή εμφάνιση. Συμπλήρωσε τα δικά σου γεύματα και θερμίδες παρακάτω. Βιταμίνη D + ασβέστιο αξίζουν κουβέντα με τον γιατρό.`
+};
+const DIET_TAG = { thanasis:"💊 5g κρεατίνη / ημέρα", eleni:"🥛 90–100γρ πρωτεΐνη / ημέρα" };
+const DIET_EB  = { thanasis:"Διατροφή · Όγκος", eleni:"Διατροφή · Πρωτεΐνη" };
 
 function mealKcal(m){
   if(m.choose && m.choose.length){
@@ -1460,6 +1639,9 @@ function removeOption(m,oid){
 }
 
 function renderDiet(){
+  document.getElementById("diet-note").innerHTML = DIET_NOTE[P()] || DIET_NOTE.thanasis;
+  document.getElementById("diet-tag").textContent = DIET_TAG[P()] || "";
+  document.getElementById("diet-eb").textContent  = DIET_EB[P()] || "Διατροφή";
   const gi = document.getElementById("ds-goal-input");
   if(document.activeElement !== gi) gi.value = DIET.goal||0;
 
@@ -1544,7 +1726,6 @@ document.getElementById("ds-goal-input").addEventListener("input", ()=>{
   DIET.goal = v==="" ? 0 : (parseInt(v,10)||0);
   saveDiet(); refreshTotals();
 });
-document.getElementById("diet-note").innerHTML = DIET_NOTE;
 
 /* ---------- view switch ---------- */
 function setView(v){
@@ -1560,7 +1741,6 @@ document.getElementById("viewswitch").addEventListener("click", ev=>{
 });
 
 /* ---------- init ---------- */
-document.getElementById("notes").innerHTML = NOTES;
 syncModeToggle();
 renderProfilePill();
 setView("train");
